@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>しゅり ありがとう制作所</title>
+
+<style>
+:root{
+  --bg:#fffaf3; --card:#fff; --line:#f1d7ad; --ink:#5b3a1c; --muted:#86674b;
+  --accent:#ff9717; --accent2:#ff88a8; --green:#78c96d;
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+}
+body.modal-open{overflow:hidden}
+.wrap{width:100%;margin:0;padding:0 0 76px}
+.apphead{
+  position:sticky;top:0;z-index:25;
+  background:rgba(255,250,243,.96);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid #f1dfc3;
+  padding:calc(7px + env(safe-area-inset-top)) 8px 8px;
+}
+.appname{
+  font-size:12px;font-weight:900;color:#9a6b32;
+  margin:0 4px 7px;letter-spacing:.02em;
+}
+.tabbar{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;margin:0;
+}
+.tabbtn,.subbtn,.pillbtn,.primarybtn,.ghostbtn{
+  border:0;font:inherit;font-weight:900;cursor:pointer;
+}
+.tabbtn{
+  min-height:42px;padding:7px 4px;border-radius:11px;
+  background:#fff0d9;color:#865016;font-size:11px;line-height:1.2;
+}
+.tabbtn.active{background:var(--accent);color:white}
+.pane{display:none}
+.pane.active{display:block}
+.card{background:transparent;border:0;border-radius:0;box-shadow:none;padding:0}
+.helper{display:none}
+.framewrap{border:0;border-radius:0;overflow:hidden;background:#fff}
+iframe{
+  display:block;width:100%;height:calc(100dvh - 94px);
+  min-height:640px;border:0;background:#fff;
+}
+.subbar{
+  position:sticky;top:87px;z-index:18;
+  display:grid;grid-template-columns:1fr 1fr;gap:6px;
+  padding:6px 8px;background:rgba(255,250,243,.96);
+  backdrop-filter:blur(10px);border-bottom:1px solid #f2e3ca;
+  margin:0;
+}
+.subbtn{
+  min-height:38px;padding:7px 5px;border-radius:10px;
+  background:#fff0d9;color:#865016;font-size:11px;line-height:1.2;
+}
+.subbtn.active{background:#ffc967;color:#603900}
+.hidden{display:none!important}
+
+.senddock{
+  position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));
+  left:auto;z-index:35;padding:0;background:none;backdrop-filter:none;
+}
+.senddock .inner{display:block}
+.senddock .note,#jumpImageBtn{display:none!important}
+.primarybtn{
+  min-width:0;width:auto;padding:10px 13px;border-radius:999px;
+  background:linear-gradient(135deg,#ffae37,#ff7f50);color:#fff;
+  box-shadow:0 5px 14px rgba(205,102,25,.28);font-size:12px;
+}
+.ghostbtn{
+  background:#fff2de;color:#8b571d;border-radius:11px;
+  padding:8px 10px;font-size:12px;
+}
+
+.overlay{
+  position:fixed;inset:0;background:rgba(56,33,10,.48);z-index:50;
+  display:none;align-items:flex-end;justify-content:center;padding:8px;
+}
+.overlay.open{display:flex}
+.sheet{
+  width:min(980px,100%);max-height:94dvh;background:#fffaf2;
+  border-radius:22px 22px 14px 14px;border:1px solid var(--line);
+  box-shadow:0 24px 60px rgba(0,0,0,.2);overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.sheethead{
+  padding:12px;background:#fff0d7;border-bottom:1px solid #efd6ae;
+  display:flex;gap:8px;align-items:flex-start;justify-content:space-between;
+}
+.sheethead h2{margin:0;font-size:17px}
+.sheethead p{margin:3px 0 0;font-size:10px;color:#7d5d3f;font-weight:700;line-height:1.4}
+.sheetbody{overflow:auto;padding:10px}
+.actionbar{
+  position:sticky;top:0;z-index:2;background:#fffaf2;
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;
+  padding-bottom:8px;
+}
+.pillbtn{
+  min-height:48px;padding:7px 5px;border-radius:10px;
+  background:#ffb24c;color:white;font-size:10px;line-height:1.25;
+}
+.pillbtn.secondary{background:var(--accent2)}
+.pillbtn.third{background:var(--green)}
+.statusline{font-size:11px;font-weight:800;color:#7d5d3e;min-height:16px;margin:4px 2px 8px}
+.section{
+  background:white;border:1px solid #f0d8b1;border-radius:14px;
+  padding:11px;margin-top:9px;
+}
+.section h3{margin:0 0 8px;font-size:14px}
+.previewbox{
+  width:100%;min-height:120px;border:1px solid #f4dfbf;border-radius:11px;
+  padding:10px;background:#fffdf9;white-space:pre-wrap;line-height:1.65;
+  font-size:12px;color:#55341a;
+}
+.previewimg{width:100%;display:block;border-radius:12px;background:#fff;border:1px solid #f3dfbd}
+.row{display:flex;gap:6px;flex-wrap:wrap}
+.small{font-size:10px;color:#8a6749;font-weight:700;line-height:1.45}
+
+@media(min-width:760px){
+  .apphead{padding-left:14px;padding-right:14px}
+  .tabbar{max-width:720px}
+  .tabbtn{font-size:13px}
+  iframe{height:calc(100dvh - 100px)}
+  .senddock{right:22px}
+}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="apphead">
+    <div class="appname">💌 ありがとう制作所</div>
+    <div class="tabbar">
+      <button class="tabbtn active" data-tab="overall">💬 全体</button>
+      <button class="tabbtn" data-tab="gift">🎁 ギフト</button>
+      <button class="tabbtn" data-tab="image">🎨 画像</button>
+    </div>
+  </header>
+
+<section class="pane active" id="pane-overall">
+    <div class="card">
+      <div class="helper">上のメッセージ欄に入れる「全体メッセージ」をここで作る。</div>
+      <div class="framewrap"><iframe id="frameOverall" src="overall.html" title="全体メッセージ"></iframe></div>
+    </div>
+  </section>
+
+  <section class="pane" id="pane-gift">
+    <div class="card">
+      <div class="subbar">
+        <button class="subbtn active" data-giftsub="gifttext">🎁 ギフト文</button>
+        <button class="subbtn" data-giftsub="supporter">🌷 サポ画像</button>
+      </div>
+      <div class="helper">「ギフト名プラスサポーター」用。送信ボタンのコピー対象は「🎁 ギフト文」側の完成文だよ。</div>
+      <div class="framewrap" id="giftTextWrap"><iframe id="frameGiftText" src="gift.html" title="ギフト本文"></iframe></div>
+      <div class="framewrap hidden" id="supporterWrap"><iframe id="frameSupporter" src="supporter.html" title="サポーター画像"></iframe></div>
+    </div>
+  </section>
+
+  <section class="pane" id="pane-image">
+    <div class="card">
+      <div class="helper">最後に送る「ありがとう画像」をここで作る。小物1個表示の版をベースにしてるよ。</div>
+      <div class="framewrap"><iframe id="frameImage" src="thankimage.html" title="ありがとう画像"></iframe></div>
+    </div>
+  </section>
+</div>
+
+<div class="senddock">
+  <div class="inner">
+    <button class="primarybtn" id="openSendBtn">📨 送信</button>
+  </div>
+</div>
+
+<div class="overlay" id="sendOverlay" aria-hidden="true">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sendTitle">
+    <div class="sheethead">
+      <div>
+        <h2 id="sendTitle">📨 送信モード</h2>
+        <p>上が実際の操作、下が確認用。<br>①全体メッセージ → ②ギフト文 → ③イラスト保存 の順で使う想定。</p>
+      </div>
+      <div class="row">
+        <button class="ghostbtn" id="refreshSendBtn">🔄 最新に更新</button>
+        <button class="ghostbtn" id="closeSendBtn">✖ 閉じる</button>
+      </div>
+    </div>
+    <div class="sheetbody">
+      <div class="actionbar">
+        <button class="pillbtn" id="copyOverallBtn">① 全体メッセージをコピー</button>
+        <button class="pillbtn secondary" id="copyGiftBtn">② ギフト文をコピー</button>
+        <button class="pillbtn third" id="saveImageBtn">③ イラストを共有・保存</button>
+      </div>
+      <div class="statusline" id="actionStatus"></div>
+
+      <section class="section">
+        <h3>👀 送信内容を確認</h3>
+        <div class="small">確認したい時だけ下へ。表示だけで、上の操作エリアとは分けてあるよ。</div>
+      </section>
+
+      <section class="section">
+        <h3>① 上の「メッセージ」欄に送る内容</h3>
+        <div class="previewbox" id="overallPreview">まだ読み込めていません。</div>
+      </section>
+
+      <section class="section">
+        <h3>② 下の「メッセージ1」欄に送る内容</h3>
+        <div class="previewbox" id="giftPreview">まだ読み込めていません。</div>
+      </section>
+
+      <section class="section">
+        <h3>③ 送るイラスト</h3>
+        <img class="previewimg" id="imagePreview" alt="ありがとう画像プレビュー">
+        <div class="small" style="margin-top:8px">共有できない環境では、画像ファイルとしてダウンロードに切り替えるよ。</div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+function setMainTab(name){
+  $$('.tabbtn').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  $$('.pane').forEach(p=>p.classList.toggle('active', p.id===`pane-${name}`));
+}
+$$('.tabbtn').forEach(btn=>btn.addEventListener('click', ()=>setMainTab(btn.dataset.tab)));
+
+function setGiftSub(name){
+  $$('[data-giftsub]').forEach(b=>b.classList.toggle('active', b.dataset.giftsub===name));
+  $('#giftTextWrap').classList.toggle('hidden', name!=='gifttext');
+  $('#supporterWrap').classList.toggle('hidden', name!=='supporter');
+}
+$$('[data-giftsub]').forEach(btn=>btn.addEventListener('click', ()=>setGiftSub(btn.dataset.giftsub)));
+
+const overlay = $('#sendOverlay');
+function openSend(){ overlay.classList.add('open'); overlay.setAttribute('aria-hidden','false'); document.body.classList.add('modal-open'); refreshSendData(); }
+function closeSend(){ overlay.classList.remove('open'); overlay.setAttribute('aria-hidden','true'); document.body.classList.remove('modal-open'); }
+$('#openSendBtn').addEventListener('click', openSend);
+$('#closeSendBtn').addEventListener('click', closeSend);
+overlay.addEventListener('click', e=>{ if(e.target===overlay) closeSend(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && overlay.classList.contains('open')) closeSend(); });
+$('#refreshSendBtn').addEventListener('click', refreshSendData);
+
+function safeFrameDoc(id){
+  const fr=document.getElementById(id);
+  try{return fr?.contentWindow?.document || null;}catch(e){return null;}
+}
+function frameValue(frameId, selectors=[]){
+  const doc=safeFrameDoc(frameId); if(!doc) return '';
+  for(const sel of selectors){
+    const el=doc.querySelector(sel); if(!el) continue;
+    if('value' in el && String(el.value).trim()) return String(el.value).trim();
+    const txt=(el.textContent||'').trim(); if(txt) return txt;
+  }
+  return '';
+}
+function frameCanvasData(frameId, canvasSelector='canvas'){
+  const doc=safeFrameDoc(frameId); if(!doc) return '';
+  const canvas=doc.querySelector(canvasSelector); if(!canvas) return '';
+  try{return canvas.toDataURL('image/png');}catch(e){return '';}
+}
+function setStatus(msg){ $('#actionStatus').textContent = msg || ''; }
+
+function refreshSendData(){
+  const overall = frameValue('frameOverall', ['#fullPreview']);
+  const gift = frameValue('frameGiftText', ['#result']);
+  const img = frameCanvasData('frameImage', '#canvas');
+  $('#overallPreview').textContent = overall || 'まだ全体メッセージがありません。';
+  $('#giftPreview').textContent = gift || 'まだギフト文がありません。';
+  const imgel=$('#imagePreview');
+  if(img){ imgel.src=img; imgel.style.display='block'; }
+  else { imgel.removeAttribute('src'); imgel.style.display='none'; }
+  setStatus('最新の内容を読み込みました。');
+}
+
+async function copyText(text, success, emptyMsg){
+  const value=(text||'').trim();
+  if(!value){ setStatus(emptyMsg || 'コピーする内容がまだありません。'); return; }
+  try{
+    await navigator.clipboard.writeText(value);
+    setStatus(success || 'コピーしました。');
+  }catch(e){
+    const ta=document.createElement('textarea');
+    ta.value=value; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); setStatus(success || 'コピーしました。'); }
+    catch(err){ setStatus('コピーに失敗したから、下の確認欄から手動コピーしてね。'); }
+    ta.remove();
+  }
+}
+
+$('#copyOverallBtn').addEventListener('click', async ()=>{
+  const text=frameValue('frameOverall', ['#fullPreview']);
+  await copyText(text,'全体メッセージをコピーしたよ！','全体メッセージがまだ空っぽだよ。');
+  $('#overallPreview').textContent = text || 'まだ全体メッセージがありません。';
+});
+
+$('#copyGiftBtn').addEventListener('click', async ()=>{
+  const text=frameValue('frameGiftText', ['#result']);
+  await copyText(text,'ギフト文をコピーしたよ！','ギフト文がまだ空っぽだよ。');
+  $('#giftPreview').textContent = text || 'まだギフト文がありません。';
+});
+
+async function saveImageFromFrame(){
+  const doc=safeFrameDoc('frameImage');
+  const canvas=doc?.querySelector('#canvas');
+  if(!canvas){ setStatus('ありがとう画像がまだありません。'); return; }
+  const dataUrl = frameCanvasData('frameImage','#canvas');
+  if(dataUrl) $('#imagePreview').src = dataUrl;
+  const blob = await new Promise(resolve=> canvas.toBlob(resolve,'image/png'));
+  if(!blob){ setStatus('画像の保存に失敗したよ。'); return; }
+  const file = new File([blob], 'shuri-thanks-image.png', {type:'image/png'});
+  try{
+    if(navigator.canShare && navigator.canShare({files:[file]}) && navigator.share){
+      await navigator.share({files:[file], title:'しゅり ありがとう画像'});
+      setStatus('画像の共有画面を開いたよ！');
+      return;
+    }
+  }catch(e){
+    if(String(e).includes('AbortError')){ setStatus('共有をキャンセルしたよ。'); return; }
+  }
+  const url = URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='shuri-thanks-image.png';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+  setStatus('画像ファイルを保存したよ！');
+}
+$('#saveImageBtn').addEventListener('click', saveImageFromFrame);
+</script>
+</body>
+</html>
