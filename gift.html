@@ -1,0 +1,1011 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ありがとうメッセージメーカー v15.3.3</title>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<style>
+:root{
+  --bg:#fff9f4; --card:#fff; --ink:#4a382f; --muted:#9a8174;
+  --orange:#ffa43a; --orange2:#ffbf6d; --line:#efd7c7; --warn:#f5be3d;
+  --green:#3c9568; --greenbg:#eaf8f0; --shadow:0 10px 30px rgba(98,69,51,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif}
+.wrap{max-width:860px;margin:auto;padding:18px 18px 120px}
+h1{font-size:clamp(28px,5vw,44px);margin:18px 0 8px;font-weight:900}
+.lead{line-height:1.7;color:var(--muted);font-size:17px}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:26px;padding:24px;margin:20px 0;box-shadow:var(--shadow)}
+.card h2{font-size:28px;margin:0 0 14px}
+.note{color:var(--muted);line-height:1.75}
+.drop{border:3px dashed #efcc9d;border-radius:24px;padding:26px;background:#fffdfa}
+input[type=file]{width:100%;font-size:18px}
+.btnrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+button{border:0;border-radius:22px;padding:18px 16px;font-weight:900;font-size:20px;cursor:pointer}
+.primary{background:var(--orange);color:#fff}
+.secondary{background:#f2efec;color:var(--ink)}
+.smallbtn{font-size:15px;padding:10px 14px;border-radius:14px}
+.progress{height:10px;border-radius:99px;background:#eee9e5;overflow:hidden;margin-top:14px}
+.progress>i{display:block;width:0;height:100%;background:linear-gradient(90deg,var(--orange),#ff7d7d);transition:.2s}
+#preview{width:100%;max-height:520px;object-fit:contain;border-radius:18px;background:#f7f4f2;margin-top:14px;display:none}
+#imageRail{display:none;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:8px 2px 4px;margin-top:8px;-webkit-overflow-scrolling:touch}
+#imageRail.show{display:flex}
+.shotthumb{flex:0 0 78%;max-width:520px;scroll-snap-align:start;border:1.5px solid var(--line);border-radius:14px;overflow:hidden;background:#111;position:relative}
+.shotthumb img{display:block;width:100%;height:220px;object-fit:contain;background:#111}
+.shotthumb span{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.62);color:#fff;font-size:11px;font-weight:800;padding:4px 7px;border-radius:999px}
+#imgLightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:60;display:none;align-items:center;justify-content:center;padding:16px}
+#imgLightbox.show{display:flex}
+#imgLightbox img{max-width:96vw;max-height:88vh;object-fit:contain;border-radius:14px}
+#imgLightbox button{position:absolute;top:max(16px,env(safe-area-inset-top));right:16px;background:#fff;color:#222;padding:10px 14px;border-radius:14px;font-size:14px}
+.person{border:1.5px solid var(--line);border-radius:22px;padding:18px;margin:14px 0;background:#fff}
+.person.ok{border-color:#b8dec8}
+.person.warn{border-color:#eabe52;background:#fffdf8}
+.person.zero{opacity:.72}
+.personhead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.personname{font-size:22px;font-weight:900;line-height:1.35;word-break:break-word}
+.badge{font-size:13px;font-weight:800;padding:6px 9px;border-radius:999px;background:#f4f0ed;white-space:nowrap}
+.badge.warn{background:#fff0bf;color:#7e5814}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.kv{border:1px solid var(--line);border-radius:16px;padding:10px;min-height:76px}
+.kv b{display:block;color:var(--muted);font-size:13px;margin-bottom:5px}
+.kv span{font-size:17px;font-weight:700}
+.editgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+label{font-weight:800;font-size:14px}
+input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:16px;padding:12px 13px;font-size:17px;background:#fff;color:var(--ink)}
+textarea{min-height:380px;white-space:pre-wrap}
+.canvaswrap{position:relative;margin-top:12px;display:none}
+#workCanvas{width:100%;border-radius:18px;background:#fff}
+.legend{font-size:14px;color:var(--muted);margin-top:6px}
+.nickrow{display:grid;grid-template-columns:1.4fr 1fr auto;gap:8px;align-items:center;margin:8px 0}
+.fixbox{border:1.5px solid #d2b1ff;background:#fbf8ff;border-radius:18px;padding:16px;margin-top:14px}
+.fixbox h3{margin:0 0 8px}
+.learnlist{font-size:14px;color:var(--muted)}
+.sticky{position:fixed;left:0;right:0;bottom:0;padding:14px 18px calc(14px + env(safe-area-inset-bottom));background:rgba(255,249,244,.93);backdrop-filter:blur(12px);z-index:20;border-top:1px solid #f0ded1}
+.sticky button{width:min(820px,100%);display:block;margin:auto}
+.hidden{display:none!important}
+.statusline{font-weight:800;margin-top:10px}
+.resultbox{background:#fff;border:1.5px solid var(--line);border-radius:20px;padding:18px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.tab{background:#f2efec;color:var(--ink);font-size:15px;padding:10px 13px}
+.tab.active{background:var(--orange);color:#fff}
+@media(max-width:680px){
+  .wrap{padding:10px 10px 120px}
+  .card{padding:18px;border-radius:22px}
+  .card h2{font-size:24px}
+  .grid{grid-template-columns:1fr 1fr}
+  .editgrid{grid-template-columns:1fr}
+  .nickrow{grid-template-columns:1fr 1fr}
+  .nickrow button{grid-column:1/-1}
+}
+
+/* v12 compact UI */
+.wrap{max-width:760px;padding:10px 10px 96px}
+h1{font-size:24px;margin:10px 0 4px}
+.lead{font-size:13px;line-height:1.5;margin:0 0 10px}
+.card{border-radius:18px;padding:14px;margin:12px 0;box-shadow:none}
+.card h2{font-size:20px;margin:0 0 8px}
+.note{font-size:12px;line-height:1.5}
+.drop{padding:14px;border-radius:16px}
+input[type=file]{font-size:14px}
+.btnrow{gap:8px;margin-top:10px}
+button{border-radius:14px;padding:12px 10px;font-size:15px}
+.smallbtn{font-size:12px;padding:8px 10px;border-radius:10px}
+.person{border-radius:16px;padding:12px;margin:8px 0}
+.personhead{align-items:center}
+.personname{font-size:17px}
+.badge{font-size:11px;padding:4px 7px}
+.grid{grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.kv{border-radius:12px;padding:7px;min-height:58px}
+.kv b{font-size:10px;margin-bottom:3px}
+.kv span{font-size:13px}
+.editgrid{grid-template-columns:1.2fr 1.2fr .7fr .8fr .8fr;gap:6px;margin-top:8px}
+label{font-size:10px}
+input,select,textarea{border-radius:11px;padding:9px 10px;font-size:13px}
+textarea{min-height:260px}
+.personshot{width:100%;height:72px;object-fit:cover;border:1px solid var(--line);border-radius:10px;margin-top:6px;background:#111}
+.manualbox{display:none;margin-top:10px}
+.manualbox.show{display:block}
+#workCanvas{border-radius:12px;max-height:360px;object-fit:contain}
+.legend{font-size:11px}
+.sticky{padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
+.sticky button{font-size:16px;padding:13px}
+#preview{display:none!important}
+@media(max-width:680px){
+ .wrap{padding:8px 8px 92px}.card{padding:12px}.card h2{font-size:18px}
+ .grid{grid-template-columns:repeat(4,1fr)}
+ .editgrid{grid-template-columns:1fr 1fr}.editgrid label:nth-child(3),.editgrid label:nth-child(4),.editgrid label:nth-child(5){grid-column:auto}
+ .personname{font-size:16px}.kv span{font-size:12px}
+}
+
+/* v14 compact */
+body{font-size:14px}.wrap{max-width:920px;padding:8px 8px 92px}
+h1{font-size:22px;margin:8px 2px 4px}.lead{font-size:13px;line-height:1.45;margin:0 2px 8px}
+.card{padding:11px;margin:9px 0;border-radius:15px}.card h2{font-size:18px;margin:0 0 7px}
+.note{font-size:12px;line-height:1.4}.drop{padding:11px;border-radius:13px}
+button{padding:10px 11px;font-size:14px;border-radius:13px}.btnrow{gap:6px;margin-top:7px}
+input,select,textarea{padding:7px 8px;font-size:13px;border-radius:9px}
+#preview,.canvaswrap{display:none!important}.person{padding:8px;margin:6px 0;border-radius:11px}
+.personname{font-size:14px}.badge{font-size:10px;padding:3px 6px}.grid{display:none!important}
+.editgrid{display:grid;grid-template-columns:minmax(120px,1.7fr) minmax(82px,1fr) 70px 62px 62px;gap:4px;margin-top:5px}
+.editgrid label{font-size:9px}.editgrid input,.editgrid select{font-size:11px;padding:6px 5px}
+.person .btnrow{grid-template-columns:1fr auto}.smallbtn{font-size:10px;padding:6px 7px;border-radius:8px}
+#result{min-height:300px;font-size:12px;line-height:1.4}.nickrow{margin:4px 0;gap:4px}
+.sticky{padding:7px 9px calc(7px + env(safe-area-inset-bottom))}.sticky button{padding:11px;font-size:14px}
+.v14-strip{display:flex;gap:6px;overflow-x:auto;padding:2px 1px 7px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.v14-thumb{flex:0 0 100px;scroll-snap-align:start;border:1px solid var(--line);border-radius:10px;padding:4px;background:#fff}
+.v14-thumb img{width:100%;height:112px;object-fit:cover;object-position:top;border-radius:6px;display:block;background:#222}
+.v14-thumb small{display:block;margin-top:3px;font-size:9px;color:var(--muted)}
+.v14-person-preview{width:100%;max-height:56px;object-fit:cover;object-position:left center;border-radius:7px;margin:4px 0 2px;border:1px solid var(--line)}
+.v14-summary{display:flex;gap:5px;flex-wrap:wrap;margin:4px 0 6px}.v14-pill{font-size:10px;padding:3px 6px;border-radius:999px;background:#f4f0ed}.v14-pill.warn{background:#fff0bf}
+@media(max-width:680px){.wrap{padding:6px 6px 88px}.card{padding:9px}.editgrid{grid-template-columns:minmax(105px,1.6fr) minmax(78px,1fr) 62px 58px 58px}.v14-thumb{flex-basis:92px}.v14-thumb img{height:104px}}
+
+
+.dictDetails{border:1px solid var(--line);border-radius:14px;background:#fff;margin:10px 0;overflow:hidden}
+.dictDetails>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 13px;font-weight:900;cursor:pointer;background:#faf8f6}
+.dictDetails>summary::-webkit-details-marker{display:none}
+.dictDetails>summary:after{content:"＋";font-size:18px;color:var(--muted);margin-left:auto}
+.dictDetails[open]>summary:after{content:"−"}
+.miniCount{font-size:12px;font-weight:800;color:#826e61;background:#eee9e5;border-radius:99px;padding:4px 8px;margin-left:6px}
+.dictTools{padding:10px 10px 4px}
+#dictSearch{height:42px;padding:9px 12px;margin:0 0 8px;font-size:14px}
+.dictHead{display:grid;grid-template-columns:1.4fr 1fr auto;gap:8px;padding:0 2px 4px;color:var(--muted);font-size:11px;font-weight:800}
+#dictPanel{padding:0 10px 10px;max-height:55vh;overflow:auto}
+#learnPanel{padding:10px;max-height:45vh;overflow:auto}
+@media(max-width:560px){.dictHead{grid-template-columns:1fr 1fr 52px}.nickrow{grid-template-columns:1fr 1fr 52px!important}.nickrow button{grid-column:auto!important;padding:8px 4px;font-size:11px}}
+</style>
+
+<style id="v152-ui">
+.maybeBox{margin:6px 0 4px;padding:7px 8px;border-radius:10px;background:#fff8df;border:1px solid #f0cf74;font-size:11px}
+.maybeBtns{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.maybeBtn{font-size:11px!important;padding:6px 8px!important;border-radius:999px!important;background:#fff!important;color:#5b463d!important;border:1px solid #dccfc7!important;font-weight:800!important}
+.maybeBtn small{font-size:9px;color:#9a8174}
+</style>
+
+
+<style id="v153-ui">
+.v14-summary .top{background:#fff3c9}
+.v153grid{grid-template-columns:1fr 1fr .8fr!important}
+.topchosen{border-color:#f1bd38!important;background:#fffdfa!important}
+.topPickBtn{border:1.5px solid #e6c56c;background:#fff8dc;color:#765417;border-radius:12px;padding:8px 10px;font-weight:900}
+.topPickBtn.active{background:#ffe38a;border-color:#dcae21}
+.duplicateBox{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:7px 0;padding:8px 9px;border-radius:11px;background:#fff2f1;border:1px solid #efb9b5;font-size:11px}
+.duplicateDelete{border:0;border-radius:999px;background:#fff;color:#a7443c;padding:6px 9px;font-weight:900}
+.newRankPanel{margin-top:8px;padding:9px;border:1px solid #d9ead9;border-radius:12px;background:#fbfffb}
+.newRankTitle{font-size:11px;font-weight:900;margin-bottom:7px}
+.newVisible{display:inline-block;margin-left:6px;padding:3px 7px;border-radius:999px;background:#dff6df;color:#27722f}
+.mutedSmall{color:#a49489;font-weight:700}
+.newRankBtns{display:flex;gap:6px;flex-wrap:wrap}
+.newRankBtn{border:1px solid #cbdcc9;background:#fff;border-radius:999px;padding:7px 10px;font-weight:900;color:#48654a}
+.newRankBtn.active{background:#63b96b;color:#fff;border-color:#63b96b}
+.v153actions{align-items:center}
+@media(max-width:520px){.v153grid{grid-template-columns:1fr 1fr!important}.v153grid label:last-child{grid-column:1/-1}}
+</style>
+
+
+<style id="site-tabs-v1">
+.siteTabs{
+  display:flex;
+  gap:8px;
+  margin:4px 0 10px;
+  flex-wrap:wrap;
+}
+.siteTabs a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:40px;
+  padding:8px 12px;
+  border-radius:999px;
+  text-decoration:none;
+  font-size:12px;
+  font-weight:900;
+  border:1px solid var(--line);
+}
+.siteTabs .active{
+  background:linear-gradient(135deg,#ffa43a,#ffbf6d);
+  color:#fff;
+}
+.siteTabs .other{
+  background:#fff;
+  color:#9a587e;
+}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <nav class="siteTabs" aria-label="ページ切り替え">
+    <a class="active" href="gift.html">🎁 ありがとう</a>
+    <a class="other" href="supporter.html">🌷 サポーター</a>
+  </nav>
+  <h1>🐰 ありがとうメッセージメーカー v15.3.3</h1>
+  <p class="lead">ダークモード専用。名前認識を最優先。完全一致は自動補正、似た名前は「この人かも？」で確認できます。コインは読みません。</p>
+
+  <section class="card">
+    <h2>① スクショを入れる</h2>
+    <div class="drop">
+      <input id="file" type="file" accept="image/*" multiple>
+      <div class="note">縦長スクショは複数枚OK。重複人物は自動でまとめます。</div>
+    </div>
+    <div class="btnrow">
+      <button class="primary" id="readBtn">画像を読み取る</button>
+      <button class="secondary" id="clearBtn">クリア</button>
+    </div>
+    <div class="progress"><i id="bar"></i></div>
+    <div id="status" class="statusline">スクショを選んでください。</div>
+<div id="v14Strip" class="v14-strip"></div>
+    <div id="imageRail" aria-label="スクショ確認"></div>
+    <img id="preview">
+    <div class="manualbox" id="manualbox">
+      <canvas id="workCanvas"></canvas>
+      <div class="legend">取りこぼした人の左アイコン中央をタップ。</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>② 人物・3行の確認</h2>
+    <p class="note">左の丸いアイコンだけを人物として採用。名前とRankを確認します。TOP3は「🏅TOP3に選ぶ」を押した順で🥇🥈🥉になります。</p>
+    <div class="btnrow">
+      <button class="secondary" id="addPersonBtn">＋ 取りこぼした人物を追加</button>
+      <button class="secondary" id="saveLearnBtn">今回の補正を記憶</button>
+    </div>
+    <div id="people"></div>
+  </section>
+
+  <section class="card">
+    <h2>③ 名前辞書</h2>
+    <p class="note">認識名→本文名（ニックネーム）を登録。次回、同じ人を読み取ったら本文だけ自動変換します。</p>
+    <details class="dictDetails" id="dictDetails">
+      <summary>📖 登録した名前を見る <span id="dictCount" class="miniCount">0件</span></summary>
+      <div class="dictTools">
+        <input id="dictSearch" type="search" placeholder="🔎 認識名・ニックネームを検索" autocomplete="off">
+        <div class="dictHead"><span>認識名</span><span>本文名（ニックネーム）</span><span></span></div>
+      </div>
+      <div id="dictPanel"></div>
+    </details>
+    <details class="dictDetails" id="learnDetails">
+      <summary>🧠 認識補正を見る <span id="learnCount" class="miniCount">0件</span></summary>
+      <div id="learnPanel"></div>
+    </details>
+    <div class="btnrow">
+      <button class="secondary" id="exportBtn">辞書を書き出す</button>
+      <button class="secondary" id="importBtn">辞書を読み込む</button>
+    </div>
+    <input id="importFile" class="hidden" type="file" accept=".json,application/json">
+  </section>
+
+  <section class="card">
+    <h2>④ HP回復リザルト</h2>
+    <div class="resultbox">
+      <textarea id="result" spellcheck="false"></textarea>
+    </div>
+    <div class="btnrow">
+      <button class="secondary" id="regenBtn">リザルト再生成</button>
+      <button class="secondary" id="copyBtn">本文をコピー</button>
+    </div>
+  </section>
+</div>
+
+<div id="imgLightbox"><button type="button" id="closeLightbox">閉じる</button><img id="lightboxImg" alt="スクショ拡大"></div>
+<div class="sticky"><button class="primary" id="copySticky">📋 完成文をコピー</button></div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const state={
+  images:[], imageIndex:0, people:[], mode:null,
+  corrections:JSON.parse(localStorage.getItem('shuri_v13_corrections')||'[]'),
+  nick:JSON.parse(localStorage.getItem('shuri_v13_nick')||'{}')
+};
+
+function setStatus(s){ $('#status').textContent=s }
+function setProgress(v){ $('#bar').style.width=Math.max(0,Math.min(100,v))+'%' }
+function norm(s){return (s||'').normalize('NFKC').replace(/[ \t　]+/g,' ').trim()}
+function noSpaces(s){return norm(s).replace(/[ \t　]+/g,'')}
+function digits(s){
+  let t=(s||'').normalize('NFKC').replace(/[OoＯo]/g,'0').replace(/[Il１l]/g,'1').replace(/,/g,'');
+  let m=t.match(/(\d{1,7})\s*(?:コイン|枚)?/);
+  return m?parseInt(m[1],10):null;
+}
+function rankOf(s){
+  let t=(s||'').normalize('NFKC');
+  let m=t.match(/Rank\s*\.?\s*([1-7])/i);
+  return m?parseInt(m[1],10):null;
+}
+function isNew(s){ return /新規/.test(s||'') }
+function isJpChar(ch){return /[\u3040-\u30ff\u3400-\u9fff々〆〄ヶ〃]/.test(ch||'')}
+function compactNameSpaces(s){
+  s=norm(s);
+  // 日本語文字どうしのOCR由来の空白は除去。英単語同士の空白は残す。
+  let prev;
+  do{prev=s;s=s.replace(/([\u3040-\u30ff\u3400-\u9fff々〆〄ヶ〃])\s+([\u3040-\u30ff\u3400-\u9fff々〆〄ヶ〃])/g,'$1$2')}while(s!==prev);
+  s=s.replace(/([\u3040-\u30ff\u3400-\u9fff々〆〄ヶ〃])\s+([@#$%&+_~・.,!?！？♡♥❤()（）\[\]【】<>＜＞])/g,'$1$2');
+  s=s.replace(/([@#$%&+_~・.,!?！？♡♥❤()（）\[\]【】<>＜＞])\s+([\u3040-\u30ff\u3400-\u9fff々〆〄ヶ〃])/g,'$1$2');
+  return s.trim();
+}
+function cleanName(s){
+  s=norm(s);
+  s=s.replace(/(?:🎁|♡|♥|❤)?\s*\d{1,3}(?:,\d{3})*\s*コイン.*$/,'');
+  s=s.replace(/Rank\s*\.?\s*[1234].*$/i,'');
+  s=s.replace(/^\s*(?:0\/\d+人|ギフトコイン数.*|メッセージ.*送信先|すべて選択).*$/,'');
+  s=s.replace(/\s+(?=コイン$)/,'');
+  return compactNameSpaces(s);
+}
+function lev(a,b){
+  a=noSpaces(a);b=noSpaces(b); const m=a.length,n=b.length;
+  if(!m)return n;if(!n)return m;
+  let p=Array.from({length:n+1},(_,i)=>i), q=new Array(n+1);
+  for(let i=1;i<=m;i++){q[0]=i;for(let j=1;j<=n;j++)q[j]=Math.min(q[j-1]+1,p[j]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));[p,q]=[q,p]}
+  return p[n]
+}
+function similarity(a,b){let L=Math.max(noSpaces(a).length,noSpaces(b).length)||1;return 1-lev(a,b)/L}
+function nicknameFor(name){
+  if(state.nick[name]) return state.nick[name];
+  let best=null,bs=0;
+  for(const k of Object.keys(state.nick)){let s=similarity(k,name); if(s>bs){bs=s;best=k}}
+  return bs>=0.88?state.nick[best]:name;
+}
+function persist(){localStorage.setItem('shuri_v13_nick',JSON.stringify(state.nick));localStorage.setItem('shuri_v13_corrections',JSON.stringify(state.corrections))}
+function uid(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
+
+async function loadImage(file){
+  return new Promise((res,rej)=>{const img=new Image();img.onload=()=>res(img);img.onerror=rej;img.src=URL.createObjectURL(file)})
+}
+function grayData(ctx,w,h){
+  const d=ctx.getImageData(0,0,w,h).data, g=new Uint8Array(w*h);
+  for(let i=0,j=0;i<d.length;i+=4,j++) g[j]=(d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114)|0;
+  return g;
+}
+function detectRightRadios(img){
+  const scale=Math.min(1,1200/img.width), w=Math.round(img.width*scale), h=Math.round(img.height*scale);
+  const c=document.createElement('canvas'); c.width=w;c.height=h; const x=c.getContext('2d');x.drawImage(img,0,0,w,h);
+  const g=grayData(x,w,h), x0=Math.floor(w*.83), x1=Math.floor(w*.985);
+  let scores=[];
+  const r=Math.max(12,Math.round(w*.018));
+  for(let cy=r;cy<h-r;cy+=3){
+    let best=0;
+    for(let cx=x0+r;cx<x1-r;cx+=3){
+      let ring=0,inner=0,cnt=0,ic=0;
+      for(let k=0;k<24;k++){
+        let a=2*Math.PI*k/24, xx=Math.round(cx+r*Math.cos(a)), yy=Math.round(cy+r*Math.sin(a));
+        ring += 255-g[yy*w+xx]; cnt++;
+      }
+      for(let yy=cy-r/2;yy<=cy+r/2;yy+=3) for(let xx=cx-r/2;xx<=cx+r/2;xx+=3){inner += 255-g[(yy|0)*w+(xx|0)];ic++}
+      let s=ring/cnt - inner/ic*0.45;
+      if(s>best)best=s;
+    }
+    scores.push([cy,best]);
+  }
+  let vals=scores.map(x=>x[1]).sort((a,b)=>a-b), thr=Math.max(28,vals[Math.floor(vals.length*.93)]||35);
+  let peaks=[];
+  for(let i=1;i<scores.length-1;i++) if(scores[i][1]>thr && scores[i][1]>=scores[i-1][1] && scores[i][1]>=scores[i+1][1]) peaks.push(scores[i]);
+  let merged=[];
+  for(let [cy,s] of peaks){if(!merged.length||cy-merged.at(-1)[0]>r*2.2)merged.push([cy,s]);else if(s>merged.at(-1)[1])merged[merged.length-1]=[cy,s]}
+  return merged.map(([cy,s])=>({cy:cy/scale,score:s,source:'radio'}));
+}
+// 左アイコンの「中身」ではなく、円そのものも人物アンカーとして検出する。
+// ダークモードでアイコン画像が真っ黒でも、細いグレーの円周が残るため拾える。
+function detectLeftAvatarCircles(img){
+  const scale=Math.min(1,1200/img.width), w=Math.round(img.width*scale), h=Math.round(img.height*scale);
+  const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.drawImage(img,0,0,w,h);
+  const g=grayData(x,w,h);
+  const cx0=Math.floor(w*.050), cx1=Math.floor(w*.135);
+  const radii=[w*.038,w*.043,w*.048,w*.053].map(v=>Math.max(10,Math.round(v)));
+  const sampleN=40, scores=[];
+  for(let cy=Math.round(w*.045);cy<h-Math.round(w*.045);cy+=4){
+    let best=0;
+    for(let cx=cx0;cx<=cx1;cx+=4){
+      for(const r of radii){
+        if(cx-r-3<0||cx+r+3>=w||cy-r-3<0||cy+r+3>=h)continue;
+        let sum=0,strong=0,valid=0;
+        for(let k=0;k<sampleN;k++){
+          const a=2*Math.PI*k/sampleN, ca=Math.cos(a), sa=Math.sin(a);
+          const p=(rr)=>g[Math.round(cy+rr*sa)*w+Math.round(cx+rr*ca)];
+          const mid=p(r), inn=p(Math.max(1,r-2.2)), out=p(r+2.2);
+          // 円周1本が内外より明るい/暗いときに強く反応。
+          // 黒アイコン＋灰色円周、白アイコン＋薄い輪郭の両方を拾う。
+          const ring=Math.abs(mid-(inn+out)/2);
+          const border=Math.max(Math.abs(mid-inn),Math.abs(mid-out));
+          const e=ring*.72+border*.28;
+          sum+=e; if(e>11)strong++; valid++;
+        }
+        if(valid){
+          const consistency=strong/valid;
+          // 円周の多くで弱くても連続したエッジがあるものを優先。
+          const s=sum/valid + consistency*24;
+          if(s>best)best=s;
+        }
+      }
+    }
+    scores.push([cy,best]);
+  }
+  if(!scores.length)return[];
+  const vals=scores.map(v=>v[1]).sort((a,b)=>a-b);
+  const thr=Math.max(10,vals[Math.floor(vals.length*.86)]||10);
+  let peaks=[];
+  for(let i=1;i<scores.length-1;i++)
+    if(scores[i][1]>=thr && scores[i][1]>=scores[i-1][1] && scores[i][1]>=scores[i+1][1])peaks.push(scores[i]);
+  let merged=[];
+  const minGap=Math.max(34,w*.070);
+  for(const [cy,s] of peaks){
+    if(!merged.length||cy-merged.at(-1)[0]>minGap)merged.push([cy,s]);
+    else if(s>merged.at(-1)[1])merged[merged.length-1]=[cy,s];
+  }
+  return merged.map(([cy,s])=>({cy:cy/scale,score:s,source:'avatar-circle'}))
+               .filter(p=>p.cy>img.height*.05 && p.cy<img.height*.985);
+}
+function detectLeftAvatars(img){
+  const scale=Math.min(1,1000/img.width), w=Math.round(img.width*scale), h=Math.round(img.height*scale);
+  const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.drawImage(img,0,0,w,h);
+  const d=x.getImageData(0,0,w,h).data, x0=Math.floor(w*.025),x1=Math.floor(w*.16);
+  let row=[];
+  for(let y=0;y<h;y+=3){
+    let sat=0,edge=0,n=0,prev=0;
+    for(let xx=x0;xx<x1;xx+=3){
+      let i=(y*w+xx)*4,r=d[i],gg=d[i+1],b=d[i+2],mx=Math.max(r,gg,b),mn=Math.min(r,gg,b);
+      sat+=(mx-mn); if(n&&Math.abs((r+gg+b)-prev)>45)edge++; prev=r+gg+b;n++;
+    }
+    row.push([y,sat/n + edge*2.3]);
+  }
+  let sorted=row.map(r=>r[1]).sort((a,b)=>a-b),thr=Math.max(18,sorted[Math.floor(sorted.length*.78)]||20);
+  let groups=[],cur=null;
+  for(const [y,s] of row){
+    if(s>thr){if(!cur)cur=[y,y,0];cur[1]=y;cur[2]+=s}
+    else if(cur){if(cur[1]-cur[0]>Math.max(20,w*.035))groups.push(cur);cur=null}
+  }
+  if(cur)groups.push(cur);
+  const texture=groups.map(g=>({cy:(g[0]+g[1])/2/scale,score:g[2]/Math.max(1,g[1]-g[0]),source:'avatar-texture'}))
+               .filter(p=>p.cy>img.height*.05 && p.cy<img.height*.98);
+  const circles=detectLeftAvatarCircles(img);
+  // 円周検出を優先しつつ、従来の色・中身検出も保険として残す。
+  const all=[...circles,...texture].sort((a,b)=>a.cy-b.cy);
+  let out=[];
+  const near=img.width*.055;
+  for(const p of all){
+    const hit=out.find(q=>Math.abs(q.cy-p.cy)<near);
+    if(!hit)out.push({...p});
+    else{
+      if(p.source==='avatar-circle' || (hit.source!=='avatar-circle' && p.score>hit.score)){
+        hit.cy=(hit.cy+p.cy)/2; hit.score=Math.max(hit.score,p.score); hit.source=p.source;
+      }
+    }
+  }
+  return out;
+}
+function fuseRows(img){
+  // v12: 右の選択丸は完全に使わない。左の丸いアイコンだけを人物アンカーにする。
+  const a=detectLeftAvatars(img).sort((x,y)=>x.cy-y.cy);
+  let out=[];
+  for(const p of a){
+    if(!out.length || p.cy-out.at(-1).cy>img.width*.075) out.push({cy:p.cy,conf:2,source:p.source});
+    else if(p.score>(out.at(-1).score||0)) out[out.length-1]={cy:p.cy,conf:2,source:p.source,score:p.score};
+  }
+  return out;
+}
+function cropCanvas(img, box){
+  const c=document.createElement('canvas');
+  const sx=Math.max(0,Math.floor(box.x)), sy=Math.max(0,Math.floor(box.y));
+  const sw=Math.max(1,Math.min(img.width-sx,Math.floor(box.w))), sh=Math.max(1,Math.min(img.height-sy,Math.floor(box.h)));
+  const scale=Math.min(2.2,1200/sw);
+  c.width=Math.max(1,Math.round(sw*scale));c.height=Math.max(1,Math.round(sh*scale));
+  const x=c.getContext('2d');x.fillStyle='white';x.fillRect(0,0,c.width,c.height);x.drawImage(img,sx,sy,sw,sh,0,0,c.width,c.height);
+  return c;
+}
+function prepCanvas(src, mode='normal'){
+  const c=document.createElement('canvas'), scale=2.2; c.width=Math.round(src.width*scale); c.height=Math.round(src.height*scale);
+  const x=c.getContext('2d'); x.imageSmoothingEnabled=false; x.drawImage(src,0,0,c.width,c.height);
+  if(mode==='normal') return c;
+  const im=x.getImageData(0,0,c.width,c.height),d=im.data;
+  let lum=0; for(let i=0;i<d.length;i+=4) lum += .299*d[i]+.587*d[i+1]+.114*d[i+2];
+  lum/=Math.max(1,d.length/4);
+  const dark=lum<128;
+  for(let i=0;i<d.length;i+=4){
+    let g=.299*d[i]+.587*d[i+1]+.114*d[i+2];
+    if(mode==='gray'){d[i]=d[i+1]=d[i+2]=dark?255-g:g;continue}
+    const v=(dark?g>110:g<165)?0:255; d[i]=d[i+1]=d[i+2]=v;
+  }
+  x.putImageData(im,0,0); return c;
+}
+async function ocrCanvas(c, psm=7, kind='generic'){
+  const variants=kind==='name'?['normal','gray']:['normal','gray'];
+  let candidates=[];
+  for(const mode of variants){
+    const pc=prepCanvas(c,mode);
+    const {data}=await Tesseract.recognize(pc,'jpn+eng',{
+      logger:m=>{ if(m.status==='recognizing text') setProgress(15+Math.round(m.progress*70)); },
+      tessedit_pageseg_mode:String(psm), preserve_interword_spaces:'1'
+    });
+    const t=norm(data.text); if(t)candidates.push(t);
+  }
+  if(!candidates.length)return'';
+  if(kind==='name'){
+    candidates=candidates.map(cleanName).filter(Boolean);
+    candidates.sort((a,b)=>{
+      const bad=x=>(/コイン|Rank|送信先|ギフトコイン/.test(x)?8:0)+(x.match(/\s/g)||[]).length*0.25+(x.match(/[|]{2,}/g)||[]).length*2;
+      return bad(a)-bad(b) || Math.abs(a.length-12)-Math.abs(b.length-12);
+    });
+  }
+  return candidates[0]||'';
+}
+function boxesFor(img,cy){
+  const W=img.width;
+  const x=W*.165, right=W*.82, unit=W*.082;
+  return {
+    name:{x,y:cy-unit*.70,w:right-x,h:unit*.50},
+    coin:{x,y:cy-unit*.12,w:right-x,h:unit*.42},
+    rank:{x,y:cy+unit*.34,w:right-x,h:unit*.44},
+    shot:{x:W*.02,y:cy-unit*.90,w:W*.80,h:unit*1.72}
+  }
+}
+async function readPerson(img,cy,imgIndex,source='auto'){
+  const b=boxesFor(img,cy);
+  const nameRaw=await ocrCanvas(cropCanvas(img,b.name),7,'name');
+  const rankRaw=await ocrCanvas(cropCanvas(img,b.rank),7,'rank');
+  let name=cleanName(nameRaw), rank=rankOf(rankRaw), isnew=isNew(rankRaw);
+  let issues=[];
+  if(!name||name.length<1)issues.push('名前');
+  if(rank===null && /Rank/i.test(rankRaw))issues.push('Rank');
+  if(/コイン|Rank/i.test(name))issues.push('名前混入');
+  return {id:uid(),imgIndex,cy,source,nameRaw,coinRaw:'',rankRaw,name,coin:null,rank,newRank:isnew?rank:null,issues,confirmed:false,topOrder:null}
+}
+function mergePeople(list){
+  let out=[];
+  for(const p of list){
+    let hit=out.find(q=>{
+      if(p.imgIndex===q.imgIndex && Math.abs(p.cy-q.cy)<35)return true;
+      let s=similarity(p.name,q.name);
+      const pn=nicknameFor(p.name)||'', qn=nicknameFor(q.name)||'';
+      return s>.92 || (pn&&qn&&pn===qn);
+    });
+    if(!hit)out.push(p);
+    else{
+      if((p.name||'').length>(hit.name||'').length)hit.name=p.name;
+      if(hit.rank==null && p.rank!=null)hit.rank=p.rank;
+      if(hit.newRank==null && p.newRank!=null)hit.newRank=p.newRank;
+      hit.issues=[...new Set([...hit.issues,...p.issues])];
+    }
+  }
+  return out;
+}
+
+async function analyze(){
+  if(!state.images.length)return;
+  state.people=[]; setProgress(3);
+  for(let i=0;i<state.images.length;i++){
+    const img=state.images[i];
+    setStatus(`画像 ${i+1}/${state.images.length}：人物を探しています…`);
+    let rows=fuseRows(img);
+    // learned row spacing aid
+    for(const c of state.corrections.filter(x=>x.kind==='missed-row')){
+      if(c.heightRatio && Math.abs(img.height/img.width-c.aspect)<.25){
+        const cy=c.cyRatio*img.height;
+        if(!rows.some(r=>Math.abs(r.cy-cy)<img.width*.09))rows.push({cy,conf:0.5});
+      }
+    }
+    rows.sort((a,b)=>a.cy-b.cy);
+    for(let k=0;k<rows.length;k++){
+      setStatus(`画像 ${i+1}/${state.images.length}：${k+1}/${rows.length}人目を3行読取中…`);
+      let p=await readPerson(img,rows[k].cy,i);
+      // suppress obvious non-person OCR
+      if(/ギフトコイン数|メッセージ|送信先|すべて選択|サポーター/.test(p.name)) continue;
+      state.people.push(p);
+    }
+  }
+  state.people=mergePeople(state.people);
+  setProgress(100);setStatus(`完了！ ${state.people.length}人を検出しました。`);
+  renderPeople();renderOverlay();generateResult();
+}
+function renderPeople(){
+  const el=$('#people');el.innerHTML='';
+  if(!state.people.length){el.innerHTML='<p class="note">まだ人物はいません。</p>';return}
+  state.people.forEach((p,idx)=>{
+    const div=document.createElement('div');
+    div.className='person '+(p.issues.length?'warn':'ok')+(p.coin===0?' zero':'');
+    div.innerHTML=`
+      <div class="personhead"><div class="personname">${escapeHtml(p.name||'未読取')}</div>
+      <span class="badge ${p.issues.length?'warn':''}">${p.coin===0?'0コイン・本文除外':p.issues.length?'要確認':'OK'}</span></div>
+      ${state.images[p.imgIndex]?`<img class="personshot" src="${personShotData(p)}">`:''}
+      <div class="grid">
+        <div class="kv"><b>👤 名前</b><span>${escapeHtml(p.name||'未読取')}</span></div>
+        <div class="kv"><b>💰 コイン</b><span>${p.coin==null?'要確認':p.coin+'コイン'}</span></div>
+        <div class="kv"><b>❤️ 現在Rank</b><span>${p.rank?'Rank.'+p.rank:'なし'}</span></div>
+        <div class="kv"><b>🌱 新規</b><span>${p.newRank?'Rank.'+p.newRank:'なし'}</span></div>
+      </div>
+      <div class="editgrid">
+        <label>認識名<input data-i="${idx}" data-k="name" value="${attr(p.name||'')}"></label>
+        <label>本文の名前（ニックネーム）<input data-i="${idx}" data-k="nick" value="${attr(nicknameFor(p.name||''))}"></label>
+        <label>コイン<input type="number" min="0" data-i="${idx}" data-k="coin" value="${p.coin??''}"></label>
+        <label>現在Rank<select data-i="${idx}" data-k="rank">
+          <option value="">なし</option><option value="1"${p.rank===1?' selected':''}>Rank.1</option><option value="2"${p.rank===2?' selected':''}>Rank.2</option><option value="3"${p.rank===3?' selected':''}>Rank.3</option><option value="4"${p.rank===4?' selected':''}>Rank.4</option>
+        </select></label>
+        <label>新規獲得<select data-i="${idx}" data-k="newRank">
+          <option value="">なし</option><option value="1"${p.newRank===1?' selected':''}>Rank.1</option><option value="2"${p.newRank===2?' selected':''}>Rank.2</option><option value="3"${p.newRank===3?' selected':''}>Rank.3</option><option value="4"${p.newRank===4?' selected':''}>Rank.4</option>
+        </select></label>
+      </div>
+      <div class="btnrow">
+        <button class="secondary smallbtn" data-save="${idx}">この名前を辞書登録</button>
+        <button class="secondary smallbtn" data-del="${idx}">この人物を削除</button>
+      </div>`;
+    el.appendChild(div);
+  });
+  el.querySelectorAll('input,select').forEach(x=>x.addEventListener('change',onEdit));
+  el.querySelectorAll('[data-save]').forEach(b=>b.onclick=()=>saveNick(+b.dataset.save));
+  el.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{state.people.splice(+b.dataset.del,1);renderPeople();generateResult()});
+}
+function onEdit(e){
+  const i=+e.target.dataset.i,k=e.target.dataset.k,p=state.people[i];
+  if(k==='coin')p.coin=e.target.value===''?null:+e.target.value;
+  else if(k==='rank'||k==='newRank')p[k]=e.target.value===''?null:+e.target.value;
+  else if(k==='name')p.name=norm(e.target.value);
+  else if(k==='nick')p.tempNick=norm(e.target.value);
+  generateResult();
+}
+function saveNick(i){
+  const p=state.people[i], card=$$('#people .person')[i], inp=card.querySelector('[data-k=nick]');
+  const n=norm(inp.value); if(!p.name||!n)return;
+  state.nick[p.name]=n; persist();renderDict();generateResult();
+}
+function renderDict(){
+  const el=$('#dictPanel'), allKeys=Object.keys(state.nick).sort((a,b)=>a.localeCompare(b,'ja'));
+  const q=norm(($('#dictSearch')?.value||'')).toLocaleLowerCase('ja');
+  const keys=q ? allKeys.filter(k=>k.toLocaleLowerCase('ja').includes(q) || String(state.nick[k]||'').toLocaleLowerCase('ja').includes(q)) : allKeys;
+  if($('#dictCount')) $('#dictCount').textContent=allKeys.length+'件';
+  el.innerHTML='';
+  if(!allKeys.length){el.innerHTML='<p class="note">まだ登録はありません。</p>';return}
+  if(!keys.length){el.innerHTML='<p class="note">検索に一致する名前はありません。</p>';return}
+  for(const k of keys){
+    const r=document.createElement('div');r.className='nickrow';
+    r.innerHTML=`<input aria-label="認識名" value="${attr(k)}" data-old="${attr(k)}" class="off"><input aria-label="本文名（ニックネーム）" value="${attr(state.nick[k])}" class="nn"><button class="secondary smallbtn">削除</button>`;
+    const [off,nn,btn]=r.children;
+    off.onchange=()=>{let nk=norm(off.value);if(nk&&nk!==k){state.nick[nk]=state.nick[k];delete state.nick[k];persist();renderDict();generateResult()}};
+    nn.onchange=()=>{state.nick[k]=norm(nn.value);persist();generateResult()};
+    btn.onclick=()=>{delete state.nick[k];persist();renderDict();generateResult()};
+    el.appendChild(r);
+  }
+}
+function renderLearn(){
+  const el=$('#learnPanel'); if($('#learnCount')) $('#learnCount').textContent=state.corrections.length+'件'; el.innerHTML=state.corrections.length?state.corrections.map((c,i)=>`<div class="learnlist">#${i+1} ${c.kind==='missed-row'?'取りこぼし位置':'補正'} ・ ${new Date(c.at).toLocaleString()}</div>`).join(''):'<p class="note">まだ補正履歴はありません。</p>';
+}
+function renderOverlay(){
+  if(!state.images.length)return;
+  const img=state.images[state.imageIndex], c=$('#workCanvas'), ctx=c.getContext('2d');
+  c.width=img.width;c.height=img.height;ctx.drawImage(img,0,0);
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function attr(s){return escapeHtml(s).replace(/"/g,'&quot;')}
+function personShotData(p){
+  const img=state.images[p.imgIndex]; if(!img)return '';
+  const c=cropCanvas(img,boxesFor(img,p.cy).shot);
+  return c.toDataURL('image/jpeg',.82);
+}
+
+
+const bonuses=[
+ ['🍮 ラッキーフード','プリン！'],['📍 ラッキースポット','冷蔵庫の前！'],['🎧 ラッキーアイテム','イヤホン！'],
+ ['🎯 ラッキー行動','好きな曲を1曲聴く！'],['🔊 ラッキー効果音','ﾎﾟﾖﾝｯ！'],['⏰ ラッキータイム','22:22！'],
+ ['🐰 ラッキーひとこと','自分に甘くてヨシ！！'],['✨ SUPER BONUS','なんか知らんけど大吉ｯ！！']
+];
+const statusPool=[['❤️ HP','■■■■■■■■■■ MAX！'],['🐰','ごきげんうさぎ'],['✨','明日のHP ＋1']];
+function displayName(p){return p.tempNick||nicknameFor(p.name)||p.name||'未読取'}
+function selectedTopPeople(){
+  return state.people
+    .filter(p=>Number.isFinite(p.topOrder)&&p.topOrder>0)
+    .sort((a,b)=>a.topOrder-b.topOrder)
+    .slice(0,3);
+}
+function normalizeTopOrders(){
+  const tops=selectedTopPeople();
+  state.people.forEach(p=>{ if(!tops.includes(p)) p.topOrder=null; });
+  tops.forEach((p,i)=>p.topOrder=i+1);
+}
+function toggleTopPerson(i){
+  const p=state.people[i];
+  if(!p)return;
+  if(p.topOrder){
+    p.topOrder=null;
+    normalizeTopOrders();
+  }else{
+    const tops=selectedTopPeople();
+    if(tops.length>=3){
+      setStatus('TOP3は3人までです。先に誰かを解除してください。');
+      return;
+    }
+    p.topOrder=tops.length+1;
+  }
+  sortPeopleForDisplay();
+  renderPeople();generateResult();
+}
+function sortPeopleForDisplay(){
+  state.people.sort((a,b)=>{
+    const at=Number.isFinite(a.topOrder)&&a.topOrder>0 ? a.topOrder : 99;
+    const bt=Number.isFinite(b.topOrder)&&b.topOrder>0 ? b.topOrder : 99;
+    if(at!==bt)return at-bt;
+    if(a.imgIndex!==b.imgIndex)return a.imgIndex-b.imgIndex;
+    return a.cy-b.cy;
+  });
+}
+function duplicateCandidateFor(p, index){
+  const pn=v14NormalizeName(p.name||'');
+  const pd=displayName(p);
+  let best=null;
+  state.people.forEach((q,j)=>{
+    if(j===index)return;
+    // Only point to an earlier occurrence so two cards don't accuse each other.
+    if(j>index)return;
+    const qn=v14NormalizeName(q.name||'');
+    const qd=displayName(q);
+    const exactNick=pd && qd && pd===qd;
+    const sim=Math.max(similarity(pn,qn), similarity(pd,qd));
+    if(exactNick || sim>=.76){
+      if(!best || sim>best.score)best={index:j,score:exactNick?1:sim,label:qd||qn};
+    }
+  });
+  return best;
+}
+function monthKeyNow(){
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+}
+function syncSupporterRoster(p){
+  const key='shuri_supporter_roster_v4';
+  let all={};
+  try{all=JSON.parse(localStorage.getItem(key)||'{}')||{}}catch(e){}
+  const mk=monthKeyNow();
+  const list=Array.isArray(all[mk])?all[mk]:[];
+  const official=v14NormalizeName(p.ocrName||p.name||'');
+  const nick=displayName(p);
+  const idx=list.findIndex(x=>{
+    const xo=v14NormalizeName(x.official||x.name||x.nick||'');
+    return (official&&xo===official) || (nick&&String(x.name||x.nick||'')===nick);
+  });
+  if(p.newRank){
+    const item={official:official||nick,name:nick||official,rank:Number(p.newRank),updatedAt:Date.now(),source:'thanks'};
+    if(idx>=0)list[idx]={...list[idx],...item};
+    else list.push(item);
+  }else if(idx>=0 && list[idx]?.source==='thanks'){
+    list.splice(idx,1);
+  }
+  all[mk]=list;
+  localStorage.setItem(key,JSON.stringify(all));
+}
+function setNewRank(i, rank){
+  const p=state.people[i];
+  if(!p)return;
+  p.newRank=(p.newRank===rank)?null:rank;
+  syncSupporterRoster(p);
+  renderPeople();generateResult();
+  setStatus(p.newRank?`${displayName(p)}：🌱新規 Rank.${p.newRank} にしました。サポーター側にも共有します。`:`${displayName(p)}：新規を解除しました。`);
+}
+
+function generateResult(){
+  const valid=state.people.filter(p=>p.name);
+  const top=selectedTopPeople();
+  const topSet=new Set(top);
+  const rest=valid.filter(p=>!topSet.has(p));
+  let lines=['🎮✨ HP回復リザルト ✨🐰','','૮₍ ˶ᵔ ᗜ ᵔ˶ ₎აっ🎁','ﾋﾟﾛﾘﾝｯ♪　HP＋＋＋！','','━━━━ 🏆 TOP3 ━━━━',''];
+  ['🥇','🥈','🥉'].forEach((med,i)=>{
+    if(top[i]){
+      const b=bonuses[(i+valid.length)%bonuses.length];
+      lines.push(`${med} ${displayName(top[i])}`,`${b[0]}：${b[1]}`,'');
+    }
+  });
+  lines.push('━━ 🎁 ギフト届け隊 ━━','');
+  rest.forEach(p=>lines.push(`🎁 ${displayName(p)}`));
+  if(rest.length)lines.push('');
+  lines.push('🎁⊂૮₍ ˶ᵔ ᗜ ᵔ˶ ₎ა⊃🎁','ぜ〜んぶ受け取ったｯｯｯ！','');
+  const nr=valid.filter(p=>p.newRank);
+  if(nr.length){
+    lines.push('━━ 🌱 NEW RANK ━━━','');
+    nr.forEach(p=>lines.push(`✨ ${displayName(p)}　Rank.${p.newRank} GET！`,`🐰 なかまになった！`,''));
+    lines.push('仲間になってくれてありがと〜ｯ！🙌','');
+  }
+  lines.push('━━ 📟 今日のしゅり ━━','',`${statusPool[0][0]}　${statusPool[0][1]}`,`${statusPool[1][0]} ${statusPool[1][1]}`,`${statusPool[2][0]} ${statusPool[2][1]}`,'','　＼ ✨ QUEST CLEAR！✨ ／','','今日もしゅりのHP','いっぱい回復した〜〜ｯ！','','ギフトも応援も','ぜんぶ受け取りました🎁✨','','૮₍ ˶ᵔ ᗜ ᵔ˶ ₎აﾉ♪','また遊びにきてね〜ｯ！');
+  $('#result').value=lines.join('\n');
+}
+async function copyResult(){
+  try{await navigator.clipboard.writeText($('#result').value);setStatus('完成文をコピーしました！')}catch(e){$('#result').select();document.execCommand('copy')}
+}
+
+function renderImageRail(){
+  const rail=$('#imageRail'); rail.innerHTML='';
+  rail.classList.toggle('show',state.images.length>0);
+  state.images.forEach((img,i)=>{
+    const wrap=document.createElement('button');wrap.type='button';wrap.className='shotthumb';wrap.style.padding='0';wrap.style.border='1.5px solid var(--line)';
+    const im=document.createElement('img');im.src=img.src;im.alt=`スクショ ${i+1}`;
+    const tag=document.createElement('span');tag.textContent=`${i+1}/${state.images.length}`;
+    wrap.append(im,tag); wrap.onclick=()=>{state.imageIndex=i;$('#lightboxImg').src=img.src;$('#imgLightbox').classList.add('show')};
+    rail.appendChild(wrap);
+  });
+}
+$('#closeLightbox').onclick=()=>$('#imgLightbox').classList.remove('show');
+$('#imgLightbox').onclick=e=>{if(e.target.id==='imgLightbox')$('#imgLightbox').classList.remove('show')};
+$('#file').onchange=async e=>{
+  state.images=[];
+  for(const f of e.target.files){state.images.push(await loadImage(f))}
+  if(state.images[0]){state.imageIndex=0}
+  renderImageRail();
+  setStatus(`${state.images.length}枚選択しました。横にスワイプして確認できます。`);
+}
+$('#readBtn').onclick=analyze;
+$('#clearBtn').onclick=()=>{state.images=[];state.people=[];$('#file').value='';$('#preview').style.display='none';$('#manualbox').classList.remove('show');renderImageRail();renderPeople();generateResult();setProgress(0);setStatus('スクショを選んでください。')};
+$('#regenBtn').onclick=generateResult;
+$('#copyBtn').onclick=copyResult;$('#copySticky').onclick=copyResult;
+
+$('#addPersonBtn').onclick=()=>{
+  if(!state.images.length)return alert('先にスクショを入れてください');
+  state.mode='add';setStatus('下の画像で、取りこぼした人の「左の丸いアイコン中心」をタップしてください。');
+  $('#manualbox').classList.add('show'); renderOverlay(); $('#manualbox').scrollIntoView({behavior:'smooth',block:'center'});
+}
+$('#workCanvas').onclick=async e=>{
+  if(state.mode!=='add')return;
+  const c=e.currentTarget,r=c.getBoundingClientRect(),cy=(e.clientY-r.top)*c.height/r.height;
+  setStatus('追加した人物の3行を読み取っています…');
+  const p=await readPerson(state.images[state.imageIndex],cy,state.imageIndex,'manual');
+  state.people=mergePeople([...state.people,p]);state.mode=null;$('#manualbox').classList.remove('show');renderPeople();generateResult();setStatus('人物を追加しました。内容を確認してください。');
+}
+$('#saveLearnBtn').onclick=()=>{
+  const manuals=state.people.filter(p=>p.source==='manual');
+  manuals.forEach(p=>state.corrections.push({kind:'missed-row',at:Date.now(),aspect:state.images[p.imgIndex].height/state.images[p.imgIndex].width,cyRatio:p.cy/state.images[p.imgIndex].height,heightRatio:1}));
+  persist();renderLearn();setStatus(`${manuals.length}件の取りこぼし位置を記憶しました。`);
+}
+$('#dictSearch')?.addEventListener('input',renderDict);
+$('#exportBtn').onclick=()=>{
+  const blob=new Blob([JSON.stringify({nick:state.nick,corrections:state.corrections},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='shuriri-name-dictionary-v13.json';a.click();URL.revokeObjectURL(a.href);
+}
+$('#importBtn').onclick=()=>$('#importFile').click();
+$('#importFile').onchange=async e=>{
+  try{const j=JSON.parse(await e.target.files[0].text());state.nick=j.nick||{};state.corrections=j.corrections||[];persist();renderDict();renderLearn();generateResult();setStatus('辞書と補正データを読み込みました。')}catch(err){alert('読み込みに失敗しました')}
+};
+renderPeople();renderDict();renderLearn();generateResult();
+
+/* v14 learning UI */
+function v14NormalizeName(s){
+  s=cleanName(s||'');
+  const C='\\u3040-\\u30ff\\u3400-\\u9fff々〆ヵヶ';
+  s=s.replace(new RegExp('(['+C+'])\\s+(?=['+C+'])','g'),'$1')
+     .replace(new RegExp('(['+C+'])\\s+(?=[A-Za-z0-9])','g'),'$1')
+     .replace(new RegExp('([A-Za-z0-9])\\s+(?=['+C+'])','g'),'$1')
+     .replace(/\s{2,}/g,' ').trim();
+  return s;
+}
+function v15ExactAlias(name){
+  if(!name)return null;
+  const n=v14NormalizeName(name);
+  return state.nick[n] ? {official:n,nick:state.nick[n],score:1} : null;
+}
+function v15NameSuggestions(name, limit=3){
+  const n=v14NormalizeName(name);
+  if(!n)return [];
+  const grouped=new Map();
+  for(const k of Object.keys(state.nick)){
+    const nick=state.nick[k];
+    const score=similarity(k,n);
+    if(score<.42)continue;
+    const prev=grouped.get(nick);
+    if(!prev || score>prev.score)grouped.set(nick,{official:k,nick,score});
+  }
+  return [...grouped.values()].sort((a,b)=>b.score-a.score).slice(0,limit);
+}
+function v14Strip(){
+  const el=document.getElementById('v14Strip'); if(!el)return;
+  el.innerHTML='';
+  state.images.forEach((img,i)=>{
+    const b=document.createElement('button');b.type='button';b.className='v14-thumb';
+    b.innerHTML=`<img src="${img.src}"><small>画像${i+1}・${state.people.filter(p=>p.imgIndex===i).length}人</small>`;
+    b.onclick=()=>window.open(img.src,'_blank');
+    el.appendChild(b);
+  });
+}
+function v14Crop(p){
+  try{
+    const img=state.images[p.imgIndex],W=img.width,row=W*.09;
+    const sx=Math.max(0,W*.015),sy=Math.max(0,p.cy-row*.82),sw=Math.min(W*.82,W-sx),sh=Math.min(row*1.7,img.height-sy);
+    const c=document.createElement('canvas');c.width=Math.round(sw*.72);c.height=Math.round(sh*.72);
+    c.getContext('2d').drawImage(img,sx,sy,sw,sh,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.9);
+  }catch(e){return ''}
+}
+const v14OldMerge=mergePeople;
+mergePeople=function(list){
+  list.forEach(p=>{
+    const original=v14NormalizeName(p.name);
+    p.ocrName=original;p.name=original;
+    const a=v15ExactAlias(original);
+    if(a){p.name=a.official;p.tempNick=a.nick;p.learned=true}
+  });
+  return v14OldMerge(list);
+};
+renderPeople=function(){
+  sortPeopleForDisplay();
+  const el=document.getElementById('people');el.innerHTML='';
+  if(!state.people.length){el.innerHTML='<p class="note">まだ人物はいません。</p>';v14Strip();return}
+  const warns=state.people.filter(p=>p.issues&&p.issues.length).length;
+  const tops=selectedTopPeople();
+  el.innerHTML=`<div class="v14-summary"><span class="v14-pill">${state.people.length}人</span><span class="v14-pill ${warns?'warn':''}">要確認 ${warns}</span><span class="v14-pill top">TOP3 ${tops.length}/3</span></div>`;
+  state.people.forEach((p,i)=>{
+    p.name=v14NormalizeName(p.name);
+    const a=v15ExactAlias(p.name);
+    if(a&&!p.tempNick){p.tempNick=a.nick;p.learned=true}
+    const suggestions=!a ? v15NameSuggestions(p.name,3) : [];
+    const dup=duplicateCandidateFor(p,i);
+    const d=document.createElement('div');
+    d.className='person '+(p.issues?.length?'warn':'ok')+(p.topOrder?' topchosen':'');
+    const pic=v14Crop(p);
+    const topLabel=p.topOrder?['','🥇','🥈','🥉'][p.topOrder]+' TOP'+p.topOrder:'🏅 TOP3に選ぶ';
+    d.innerHTML=`<div class="personhead"><div class="personname">${p.topOrder?['','🥇','🥈','🥉'][p.topOrder]+' ':''}${escapeHtml(displayName(p)||'名前を確認')}</div><span class="badge ${p.issues?.length?'warn':''}">${p.learned?'辞書✓':p.issues?.length?'要確認':'OK'}</span></div>
+    ${pic?`<img class="v14-person-preview" src="${pic}">`:''}
+    ${suggestions.length?`<div class="maybeBox"><b>💡 この人かも？</b><div class="maybeBtns">${suggestions.map((x,j)=>`<button type="button" class="maybeBtn" data-maybe-i="${i}" data-maybe-j="${j}">${escapeHtml(x.nick)} <small>${Math.round(x.score*100)}%</small></button>`).join('')}</div></div>`:''}
+    ${dup?`<div class="duplicateBox"><b>♻️ 同一人物かも？</b><span>${escapeHtml(dup.label)}</span><button type="button" class="duplicateDelete" data-dup-del="${i}">このカードを重複として削除</button></div>`:''}
+    <div class="editgrid v153grid">
+      <label>認識名<input data-i="${i}" data-k="name" value="${attr(p.name||'')}"></label>
+      <label>本文名<input data-i="${i}" data-k="nick" value="${attr(p.tempNick||nicknameFor(p.name||''))}"></label>
+      <label>Rank<select data-i="${i}" data-k="rank"><option value="">なし</option>${[1,2,3,4,5,6,7].map(n=>`<option value="${n}"${p.rank===n?' selected':''}>Rank.${n}</option>`).join('')}</select></label>
+    </div>
+    <div class="newRankPanel">
+      <div class="newRankTitle">🌱 新規Rank ${p.newRank?`<span class="newVisible">新規 Rank.${p.newRank}</span>`:'<span class="mutedSmall">なし</span>'}</div>
+      <div class="newRankBtns">
+        ${[1,2,3,4,5,6,7].map(n=>`<button type="button" class="newRankBtn ${p.newRank===n?'active':''}" data-newrank-i="${i}" data-newrank-v="${n}">Rank.${n}</button>`).join('')}
+      </div>
+    </div>
+    <div class="btnrow v153actions">
+      <button type="button" class="topPickBtn ${p.topOrder?'active':''}" data-top="${i}">${topLabel}</button>
+      <button class="secondary smallbtn" data-save="${i}">✓ この名前を覚える</button>
+      <button class="secondary smallbtn" data-del="${i}">削除</button>
+    </div>`;
+    el.appendChild(d);
+  });
+
+  el.querySelectorAll('input,select').forEach(x=>x.addEventListener('change',onEdit));
+  el.querySelectorAll('[data-top]').forEach(b=>b.onclick=()=>toggleTopPerson(+b.dataset.top));
+  el.querySelectorAll('[data-newrank-i]').forEach(b=>b.onclick=()=>setNewRank(+b.dataset.newrankI,+b.dataset.newrankV));
+  el.querySelectorAll('[data-dup-del]').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.dupDel;
+    const who=displayName(state.people[i]);
+    state.people.splice(i,1);normalizeTopOrders();renderPeople();generateResult();v14Strip();
+    setStatus(`「${who}」を重複として削除しました。`);
+  });
+  el.querySelectorAll('[data-save]').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.save,p=state.people[i],card=el.querySelectorAll('.person')[i];
+    const official=v14NormalizeName(card.querySelector('[data-k=name]').value);
+    const nick=v14NormalizeName(card.querySelector('[data-k=nick]').value)||official;
+    if(!official)return;
+    state.nick[official]=nick;
+    if(p.ocrName)state.nick[v14NormalizeName(p.ocrName)]=nick;
+    if(p.nameRaw)state.nick[v14NormalizeName(p.nameRaw)]=nick;
+    p.name=official;p.tempNick=nick;p.learned=true;persist();renderDict();renderPeople();generateResult();
+    setStatus(`「${nick}」を覚えました。`);
+  });
+  el.querySelectorAll('[data-maybe-i]').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.maybeI,j=+b.dataset.maybeJ,p=state.people[i];
+    const hit=v15NameSuggestions(p.name,3)[j];
+    if(!hit)return;
+    const raw=v14NormalizeName(p.ocrName||p.nameRaw||p.name);
+    if(raw)state.nick[raw]=hit.nick;
+    if(p.name)state.nick[v14NormalizeName(p.name)]=hit.nick;
+    p.tempNick=hit.nick;p.learned=true;
+    persist();renderDict();renderPeople();generateResult();
+    setStatus(`「${hit.nick}」として覚えました。次回からこの読み方は自動変換します。`);
+  });
+  el.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.del;
+    state.people.splice(i,1);normalizeTopOrders();renderPeople();generateResult();v14Strip();
+  });
+  v14Strip();
+};
+const v14OldOnEdit=onEdit;
+onEdit=function(e){
+  const i=+e.target.dataset.i,k=e.target.dataset.k,p=state.people[i];
+  if(!p)return;
+  if(k==='rank')p.rank=e.target.value===''?null:+e.target.value;
+  else if(k==='name')p.name=v14NormalizeName(e.target.value);
+  else if(k==='nick')p.tempNick=v14NormalizeName(e.target.value);
+  generateResult();
+};
+const v14OldAnalyze=analyze;
+analyze=async function(){await v14OldAnalyze();state.people.forEach(p=>{p.name=v14NormalizeName(p.name)});renderPeople();v14Strip();generateResult()};
+const v14OldFile=document.getElementById('file').onchange;
+document.getElementById('file').onchange=async function(e){await v14OldFile.call(this,e);v14Strip()};
+
+</script>
+</body>
+</html>
