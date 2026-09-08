@@ -2,336 +2,293 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <title>しゅり ありがとう制作所</title>
-
 <style>
-:root{
-  --bg:#fffaf3; --card:#fff; --line:#f1d7ad; --ink:#5b3a1c; --muted:#86674b;
-  --accent:#ff9717; --accent2:#ff88a8; --green:#78c96d;
-}
 *{box-sizing:border-box}
-html,body{
-  margin:0;padding:0;background:var(--bg);color:var(--ink);
-  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
-}
-body.modal-open{overflow:hidden}
-.wrap{width:100%;margin:0;padding:0 0 76px}
-.apphead{
-  position:sticky;top:0;z-index:25;
-  background:rgba(255,250,243,.96);
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid #f1dfc3;
-  padding:calc(7px + env(safe-area-inset-top)) 8px 8px;
-}
-.appname{
-  font-size:12px;font-weight:900;color:#9a6b32;
-  margin:0 4px 7px;letter-spacing:.02em;
-}
-.tabbar{
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:6px;margin:0;
-}
-.tabbtn,.subbtn,.pillbtn,.primarybtn,.ghostbtn{
-  border:0;font:inherit;font-weight:900;cursor:pointer;
-}
-.tabbtn{
-  min-height:42px;padding:7px 4px;border-radius:11px;
-  background:#fff0d9;color:#865016;font-size:11px;line-height:1.2;
-}
-.tabbtn.active{background:var(--accent);color:white}
-.pane{display:none}
-.pane.active{display:block}
-.card{background:transparent;border:0;border-radius:0;box-shadow:none;padding:0}
-.helper{display:none}
-.framewrap{border:0;border-radius:0;overflow:hidden;background:#fff}
-iframe{
-  display:block;width:100%;height:calc(100dvh - 94px);
-  min-height:640px;border:0;background:#fff;
-}
-.subbar{
-  position:sticky;top:87px;z-index:18;
-  display:grid;grid-template-columns:1fr 1fr;gap:6px;
-  padding:6px 8px;background:rgba(255,250,243,.96);
-  backdrop-filter:blur(10px);border-bottom:1px solid #f2e3ca;
-  margin:0;
-}
-.subbtn{
-  min-height:38px;padding:7px 5px;border-radius:10px;
-  background:#fff0d9;color:#865016;font-size:11px;line-height:1.2;
-}
-.subbtn.active{background:#ffc967;color:#603900}
-.hidden{display:none!important}
+:root{--bg:#fff7f1;--card:#fff;--ink:#4a382e;--muted:#8b756b;--line:#f0ddd2;--accent:#ff8d5c;--accent2:#ffb36d;--dark:#5a4437;--ok:#2f9e73}
+html,body{margin:0;height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;color:var(--ink);overflow:hidden}
+.app{height:100dvh;display:flex;flex-direction:column}
+.bottomSendBar{padding:8px 12px calc(8px + env(safe-area-inset-bottom));background:rgba(255,250,246,.98);border-top:1px solid var(--line);backdrop-filter:blur(16px);z-index:12}
+.openSendBtn{width:100%;border:0;border-radius:16px;min-height:50px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:950;font-size:15px;box-shadow:0 6px 18px rgba(255,141,92,.24)}
+.top{padding:max(10px,env(safe-area-inset-top)) 12px 8px;background:rgba(255,250,246,.97);border-bottom:1px solid var(--line);backdrop-filter:blur(16px);z-index:10}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.brand h1{font-size:18px;margin:0;font-weight:950}.brand small{font-size:10px;color:var(--muted);font-weight:800}
+.tabs{display:flex;gap:7px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tab{white-space:nowrap;border:1px solid var(--line);background:#fff;color:#725c50;border-radius:999px;padding:9px 12px;font-weight:900;font-size:12px;min-height:40px}
+.tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-color:transparent;box-shadow:0 5px 15px rgba(255,141,92,.22)}
+.workspace{flex:1;min-height:0;position:relative}
+.panel{position:absolute;inset:0;display:none}.panel.active{display:block}
+iframe{width:100%;height:100%;border:0;background:white;display:block}
+#sendPanel{overflow:auto;padding:14px 12px calc(28px + env(safe-area-inset-bottom));background:linear-gradient(#fff8f3,#fffdfb)}
+.hero{background:linear-gradient(135deg,#fff1e7,#fff);border:1px solid #ffd9c5;border-radius:20px;padding:15px;margin-bottom:12px;box-shadow:0 8px 24px rgba(105,63,39,.06)}
+.hero h2{margin:0 0 5px;font-size:20px}.hero p{margin:0;color:var(--muted);font-size:12px;line-height:1.65}
+.refresh{width:100%;border:0;border-radius:14px;padding:12px;background:#fff1e5;color:#a35d38;font-weight:900;margin-top:10px}
+.backBtn{border:0;border-radius:999px;padding:9px 12px;background:#fff;color:#755e52;font-weight:900;border:1px solid var(--line);margin-bottom:10px}
+.quickActions{background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px;margin-bottom:16px;box-shadow:0 8px 22px rgba(69,44,31,.06)}
+.quickActions h3{margin:0 0 5px;font-size:16px}.quickActions p{margin:0 0 10px;color:var(--muted);font-size:11px;line-height:1.55}
+.quickGrid{display:grid;grid-template-columns:1fr;gap:9px}
+.quickBtn{border:0;border-radius:15px;min-height:50px;padding:11px 12px;font-size:14px;font-weight:950;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.quickBtn.image{background:linear-gradient(135deg,#6656d9,#8f7ef0)}
+.confirmTitle{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:18px 2px 10px}
+.confirmTitle h3{margin:0;font-size:16px}.confirmTitle span{font-size:10px;color:var(--muted);font-weight:800}
+.confirmOnly .actions{display:none}.confirmOnly .previewText{max-height:none;overflow:visible}.confirmOnly .imgWrap img{max-height:none}
+.sendCard{background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px;margin-bottom:12px;box-shadow:0 7px 20px rgba(69,44,31,.05)}
+.cardHead{display:flex;align-items:center;gap:9px;margin-bottom:9px}.num{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#fff0e7;color:#d66d3a;font-weight:950}.cardHead b{font-size:15px}.dest{font-size:11px;color:var(--muted);margin-left:auto;font-weight:800}
+.previewText{white-space:pre-wrap;background:#fffaf6;border:1px solid #f3e2d7;border-radius:14px;padding:11px;font-size:12px;line-height:1.55;max-height:180px;overflow:auto;color:#5a463a;min-height:62px}
+.actions{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:9px}
+.copyBtn,.shareImage,.doneBtn{border:0;border-radius:14px;min-height:46px;padding:10px 12px;font-weight:950;font-size:13px}
+.copyBtn,.shareImage{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.doneBtn{background:#f5eee9;color:#735d51;min-width:72px}.doneBtn.done{background:#e6f6ef;color:#217b58}
+.imgWrap{background:#f7f1ed;border:1px solid #eadbd2;border-radius:16px;overflow:hidden;display:grid;place-items:center;min-height:170px}.imgWrap img{display:block;max-width:100%;max-height:360px}.imgEmpty{color:#9a857a;font-size:12px;padding:24px;text-align:center;line-height:1.6}
+.progress{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}.p{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 5px;text-align:center;font-size:10px;font-weight:900;color:#90796d}.p.ok{background:#eaf8f2;border-color:#bce8d7;color:#277a5b}
+.notice{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);opacity:0;background:#3e332d;color:#fff;border-radius:999px;padding:10px 14px;font-size:12px;font-weight:900;z-index:50;transition:.2s;pointer-events:none;max-width:90%;text-align:center}.notice.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.tiny{font-size:10px;color:#9d877c;line-height:1.5;margin-top:8px}
 
-.senddock{
-  position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));
-  left:auto;z-index:35;padding:0;background:none;backdrop-filter:none;
-}
-.senddock .inner{display:block}
-.senddock .note,#jumpImageBtn{display:none!important}
-.primarybtn{
-  min-width:0;width:auto;padding:10px 13px;border-radius:999px;
-  background:linear-gradient(135deg,#ffae37,#ff7f50);color:#fff;
-  box-shadow:0 5px 14px rgba(205,102,25,.28);font-size:12px;
-}
-.ghostbtn{
-  background:#fff2de;color:#8b571d;border-radius:11px;
-  padding:8px 10px;font-size:12px;
-}
-
-.overlay{
-  position:fixed;inset:0;background:rgba(56,33,10,.48);z-index:50;
-  display:none;align-items:flex-end;justify-content:center;padding:8px;
-}
-.overlay.open{display:flex}
-.sheet{
-  width:min(980px,100%);max-height:94dvh;background:#fffaf2;
-  border-radius:22px 22px 14px 14px;border:1px solid var(--line);
-  box-shadow:0 24px 60px rgba(0,0,0,.2);overflow:hidden;
-  display:flex;flex-direction:column;
-}
-.sheethead{
-  padding:12px;background:#fff0d7;border-bottom:1px solid #efd6ae;
-  display:flex;gap:8px;align-items:flex-start;justify-content:space-between;
-}
-.sheethead h2{margin:0;font-size:17px}
-.sheethead p{margin:3px 0 0;font-size:10px;color:#7d5d3f;font-weight:700;line-height:1.4}
-.sheetbody{overflow:auto;padding:10px}
-.actionbar{
-  position:sticky;top:0;z-index:2;background:#fffaf2;
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;
-  padding-bottom:8px;
-}
-.pillbtn{
-  min-height:48px;padding:7px 5px;border-radius:10px;
-  background:#ffb24c;color:white;font-size:10px;line-height:1.25;
-}
-.pillbtn.secondary{background:var(--accent2)}
-.pillbtn.third{background:var(--green)}
-.statusline{font-size:11px;font-weight:800;color:#7d5d3e;min-height:16px;margin:4px 2px 8px}
-.section{
-  background:white;border:1px solid #f0d8b1;border-radius:14px;
-  padding:11px;margin-top:9px;
-}
-.section h3{margin:0 0 8px;font-size:14px}
-.previewbox{
-  width:100%;min-height:120px;border:1px solid #f4dfbf;border-radius:11px;
-  padding:10px;background:#fffdf9;white-space:pre-wrap;line-height:1.65;
-  font-size:12px;color:#55341a;
-}
-.previewimg{width:100%;display:block;border-radius:12px;background:#fff;border:1px solid #f3dfbd}
-.row{display:flex;gap:6px;flex-wrap:wrap}
-.small{font-size:10px;color:#8a6749;font-weight:700;line-height:1.45}
-
-@media(min-width:760px){
-  .apphead{padding-left:14px;padding-right:14px}
-  .tabbar{max-width:720px}
-  .tabbtn{font-size:13px}
-  iframe{height:calc(100dvh - 100px)}
-  .senddock{right:22px}
-}
+/* 追加部分は送信画面の中だけ。閉じている時は元の見た目に一切影響しない */
+.updateFold{background:#fff;border:1px solid var(--line);border-radius:16px;margin:0 0 16px;overflow:hidden}
+.updateFold>summary{list-style:none;cursor:pointer;padding:11px 13px;font-size:12px;font-weight:900;color:#755e52}
+.updateFold>summary::-webkit-details-marker{display:none}
+.updateBody{padding:0 10px 10px}
+.updateGrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.updateBtn{border:1px solid var(--line);border-radius:12px;min-height:42px;background:#fff8f3;color:#755e52;font-size:11px;font-weight:900}
+.updateBtn.warn{background:#fff4f6;color:#a95368}
+.updateStatus{font-size:10px;color:var(--muted);font-weight:800;line-height:1.5;margin-top:8px;min-height:15px}
 </style>
-
 </head>
 <body>
-<div class="wrap">
-  <header class="apphead">
-    <div class="appname">💌 ありがとう制作所</div>
-    <div class="tabbar">
-      <button class="tabbtn active" data-tab="overall">💬 全体</button>
-      <button class="tabbtn" data-tab="gift">🎁 ギフト</button>
-      <button class="tabbtn" data-tab="image">🎨 画像</button>
-    </div>
+<div class="app">
+  <header class="top">
+    <div class="brand"><h1>💌 しゅり ありがとう制作所</h1><small>3サイト統合・試作版</small></div>
+    <nav class="tabs">
+      <button class="tab active" data-panel="overall">💬 全体メッセージ</button>
+      <button class="tab" data-panel="gift">🎁 ギフト＋サポーター</button>
+      <button class="tab" data-panel="illustration">🎨 イラスト</button>
+    </nav>
   </header>
 
-<section class="pane active" id="pane-overall">
-    <div class="card">
-      <div class="helper">上のメッセージ欄に入れる「全体メッセージ」をここで作る。</div>
-      <div class="framewrap"><iframe id="frameOverall" src="overall.html" title="全体メッセージ"></iframe></div>
-    </div>
-  </section>
+  <main class="workspace">
+    <section class="panel active" id="overallPanel"><iframe id="overallFrame" src="overall.html" title="全体メッセージ"></iframe></section>
+    <section class="panel" id="giftPanel"><iframe id="giftFrame" src="gift.html" title="ギフト＋サポーター"></iframe></section>
+    <section class="panel" id="illustrationPanel"><iframe id="illustrationFrame" src="thankimage.html" title="ありがとうイラスト"></iframe></section>
 
-  <section class="pane" id="pane-gift">
-    <div class="card">
-      <div class="subbar">
-        <button class="subbtn active" data-giftsub="gifttext">🎁 ギフト文</button>
-        <button class="subbtn" data-giftsub="supporter">🌷 サポ画像</button>
+    <section class="panel" id="sendPanel">
+      <button class="backBtn" id="backFromSend">← 制作画面へ戻る</button>
+
+      <div class="hero">
+        <h2>📨 送信</h2>
+        <p>まず上のボタンだけで送信作業できます。内容を確認したい時だけ、下へスクロールして見てね。</p>
+        <button class="refresh" id="refreshAll">↻ いまの完成内容を読み込む</button>
+        <div class="progress">
+          <div class="p" id="progOverall">① 全体</div>
+          <div class="p" id="progGift">② ギフト</div>
+          <div class="p" id="progImage">③ 画像</div>
+        </div>
       </div>
-      <div class="helper">「ギフト名プラスサポーター」用。送信ボタンのコピー対象は「🎁 ギフト文」側の完成文だよ。</div>
-      <div class="framewrap" id="giftTextWrap"><iframe id="frameGiftText" src="gift.html" title="ギフト本文"></iframe></div>
-      <div class="framewrap hidden" id="supporterWrap"><iframe id="frameSupporter" src="supporter.html" title="サポーター画像"></iframe></div>
-    </div>
-  </section>
 
-  <section class="pane" id="pane-image">
-    <div class="card">
-      <div class="helper">最後に送る「ありがとう画像」をここで作る。小物1個表示の版をベースにしてるよ。</div>
-      <div class="framewrap"><iframe id="frameImage" src="thankimage.html" title="ありがとう画像"></iframe></div>
-    </div>
-  </section>
+      <div class="quickActions">
+        <h3>📤 保存・コピー</h3>
+        <p>ここだけ使えばOK。次の文章をコピーすると前のコピー内容は上書きされるので、1つずつ貼り付けて使ってね。</p>
+        <div class="quickGrid">
+          <button class="quickBtn" id="sendCopyOverall">① 📋 全体メッセージをコピー</button>
+          <button class="quickBtn" id="sendCopyGift">② 📋 ギフト文をコピー</button>
+          <button class="quickBtn image" id="sendShareImage">③ 📱 イラストを共有・保存</button>
+        </div>
+        <div class="tiny">必要なら、この下へスクロールすると実際の送信内容を確認できます。</div>
+      </div>
+
+      <details class="updateFold">
+        <summary>🔄 各サイトを最新版に更新</summary>
+        <div class="updateBody">
+          <div class="updateGrid">
+            <button class="updateBtn" data-update="overall">💬 全体</button>
+            <button class="updateBtn" data-update="gift">🎁 ギフト</button>
+            <button class="updateBtn" data-update="supporter">🌷 サポ</button>
+            <button class="updateBtn warn" data-update="illustration">🎨 画像</button>
+          </div>
+          <div class="updateStatus" id="updateStatus">GitHubで変えたところだけ押せばOK。</div>
+        </div>
+      </details>
+
+      <div class="confirmTitle"><h3>👀 送信内容を確認</h3><span>確認したい時だけ ↓</span></div>
+
+      <div class="sendCard confirmOnly">
+        <div class="cardHead"><span class="num">1</span><b>全体メッセージ</b><span class="dest">上の「メッセージ」へ</span></div>
+        <div class="previewText" id="overallPreview">全体メッセージを読み込み中…</div>
+      </div>
+
+      <div class="sendCard confirmOnly">
+        <div class="cardHead"><span class="num">2</span><b>ギフト＋サポーター</b><span class="dest">下の「メッセージ1」へ</span></div>
+        <div class="previewText" id="giftPreview">ギフトメッセージを読み込み中…</div>
+      </div>
+
+      <div class="sendCard confirmOnly">
+        <div class="cardHead"><span class="num">3</span><b>ありがとうイラスト</b><span class="dest">ファイル添付へ</span></div>
+        <div class="imgWrap" id="imgWrap"><div class="imgEmpty">イラストタブで作成すると<br>ここに現在の完成画像が出ます 🎨</div></div>
+      </div>
+
+      <button class="doneBtn" id="doneOverall" style="display:none">未</button>
+      <button class="doneBtn" id="doneGift" style="display:none">未</button>
+      <button class="doneBtn" id="doneImage" style="display:none">未</button>
+    </section>
+  </main>
+
+  <div class="bottomSendBar"><button class="openSendBtn" id="openSendBtn">📨 送信する</button></div>
 </div>
-
-<div class="senddock">
-  <div class="inner">
-    <button class="primarybtn" id="openSendBtn">📨 送信</button>
-  </div>
-</div>
-
-<div class="overlay" id="sendOverlay" aria-hidden="true">
-  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sendTitle">
-    <div class="sheethead">
-      <div>
-        <h2 id="sendTitle">📨 送信モード</h2>
-        <p>上が実際の操作、下が確認用。<br>①全体メッセージ → ②ギフト文 → ③イラスト保存 の順で使う想定。</p>
-      </div>
-      <div class="row">
-        <button class="ghostbtn" id="refreshSendBtn">🔄 最新に更新</button>
-        <button class="ghostbtn" id="closeSendBtn">✖ 閉じる</button>
-      </div>
-    </div>
-    <div class="sheetbody">
-      <div class="actionbar">
-        <button class="pillbtn" id="copyOverallBtn">① 全体メッセージをコピー</button>
-        <button class="pillbtn secondary" id="copyGiftBtn">② ギフト文をコピー</button>
-        <button class="pillbtn third" id="saveImageBtn">③ イラストを共有・保存</button>
-      </div>
-      <div class="statusline" id="actionStatus"></div>
-
-      <section class="section">
-        <h3>👀 送信内容を確認</h3>
-        <div class="small">確認したい時だけ下へ。表示だけで、上の操作エリアとは分けてあるよ。</div>
-      </section>
-
-      <section class="section">
-        <h3>① 上の「メッセージ」欄に送る内容</h3>
-        <div class="previewbox" id="overallPreview">まだ読み込めていません。</div>
-      </section>
-
-      <section class="section">
-        <h3>② 下の「メッセージ1」欄に送る内容</h3>
-        <div class="previewbox" id="giftPreview">まだ読み込めていません。</div>
-      </section>
-
-      <section class="section">
-        <h3>③ 送るイラスト</h3>
-        <img class="previewimg" id="imagePreview" alt="ありがとう画像プレビュー">
-        <div class="small" style="margin-top:8px">共有できない環境では、画像ファイルとしてダウンロードに切り替えるよ。</div>
-      </section>
-    </div>
-  </div>
-</div>
+<div class="notice" id="notice"></div>
 
 <script>
-const $ = s => document.querySelector(s);
-const $$ = s => [...document.querySelectorAll(s)];
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+let lastPanel='overall';
 
-function setMainTab(name){
-  $$('.tabbtn').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
-  $$('.pane').forEach(p=>p.classList.toggle('active', p.id===`pane-${name}`));
+function showNotice(msg){
+  const n=$('#notice');
+  n.textContent=msg;
+  n.classList.add('show');
+  clearTimeout(showNotice.t);
+  showNotice.t=setTimeout(()=>n.classList.remove('show'),1800);
 }
-$$('.tabbtn').forEach(btn=>btn.addEventListener('click', ()=>setMainTab(btn.dataset.tab)));
 
-function setGiftSub(name){
-  $$('[data-giftsub]').forEach(b=>b.classList.toggle('active', b.dataset.giftsub===name));
-  $('#giftTextWrap').classList.toggle('hidden', name!=='gifttext');
-  $('#supporterWrap').classList.toggle('hidden', name!=='supporter');
+function setPanel(name){
+  if(name!=='send')lastPanel=name;
+  $$('.panel').forEach(p=>p.classList.toggle('active',p.id===`${name}Panel`));
+  $$('.tab').forEach(b=>b.classList.toggle('active',b.dataset.panel===name));
 }
-$$('[data-giftsub]').forEach(btn=>btn.addEventListener('click', ()=>setGiftSub(btn.dataset.giftsub)));
+$$('.tab').forEach(btn=>btn.addEventListener('click',()=>setPanel(btn.dataset.panel)));
+$('#openSendBtn').addEventListener('click',()=>{setPanel('send');refreshSend();});
+$('#backFromSend').addEventListener('click',()=>setPanel(lastPanel));
 
-const overlay = $('#sendOverlay');
-function openSend(){ overlay.classList.add('open'); overlay.setAttribute('aria-hidden','false'); document.body.classList.add('modal-open'); refreshSendData(); }
-function closeSend(){ overlay.classList.remove('open'); overlay.setAttribute('aria-hidden','true'); document.body.classList.remove('modal-open'); }
-$('#openSendBtn').addEventListener('click', openSend);
-$('#closeSendBtn').addEventListener('click', closeSend);
-overlay.addEventListener('click', e=>{ if(e.target===overlay) closeSend(); });
-document.addEventListener('keydown', e=>{ if(e.key==='Escape' && overlay.classList.contains('open')) closeSend(); });
-$('#refreshSendBtn').addEventListener('click', refreshSendData);
-
-function safeFrameDoc(id){
-  const fr=document.getElementById(id);
-  try{return fr?.contentWindow?.document || null;}catch(e){return null;}
+function frameDoc(id){
+  try{return document.getElementById(id)?.contentWindow?.document||null}catch(e){return null}
 }
-function frameValue(frameId, selectors=[]){
-  const doc=safeFrameDoc(frameId); if(!doc) return '';
+function frameText(id,selectors){
+  const doc=frameDoc(id);
+  if(!doc)return '';
   for(const sel of selectors){
-    const el=doc.querySelector(sel); if(!el) continue;
-    if('value' in el && String(el.value).trim()) return String(el.value).trim();
-    const txt=(el.textContent||'').trim(); if(txt) return txt;
+    const el=doc.querySelector(sel);
+    if(!el)continue;
+    if('value' in el && String(el.value).trim())return String(el.value).trim();
+    const txt=(el.textContent||'').trim();
+    if(txt)return txt;
   }
   return '';
 }
-function frameCanvasData(frameId, canvasSelector='canvas'){
-  const doc=safeFrameDoc(frameId); if(!doc) return '';
-  const canvas=doc.querySelector(canvasSelector); if(!canvas) return '';
-  try{return canvas.toDataURL('image/png');}catch(e){return '';}
+function frameCanvas(id,sel='#canvas'){
+  const doc=frameDoc(id);
+  const canvas=doc?.querySelector(sel);
+  if(!canvas)return null;
+  return canvas;
 }
-function setStatus(msg){ $('#actionStatus').textContent = msg || ''; }
-
-function refreshSendData(){
-  const overall = frameValue('frameOverall', ['#fullPreview']);
-  const gift = frameValue('frameGiftText', ['#result']);
-  const img = frameCanvasData('frameImage', '#canvas');
-  $('#overallPreview').textContent = overall || 'まだ全体メッセージがありません。';
-  $('#giftPreview').textContent = gift || 'まだギフト文がありません。';
-  const imgel=$('#imagePreview');
-  if(img){ imgel.src=img; imgel.style.display='block'; }
-  else { imgel.removeAttribute('src'); imgel.style.display='none'; }
-  setStatus('最新の内容を読み込みました。');
+function updateProgress(overall,gift,img){
+  $('#progOverall').classList.toggle('ok',!!overall);
+  $('#progGift').classList.toggle('ok',!!gift);
+  $('#progImage').classList.toggle('ok',!!img);
 }
 
-async function copyText(text, success, emptyMsg){
-  const value=(text||'').trim();
-  if(!value){ setStatus(emptyMsg || 'コピーする内容がまだありません。'); return; }
-  try{
-    await navigator.clipboard.writeText(value);
-    setStatus(success || 'コピーしました。');
-  }catch(e){
-    const ta=document.createElement('textarea');
-    ta.value=value; document.body.appendChild(ta); ta.select();
-    try{ document.execCommand('copy'); setStatus(success || 'コピーしました。'); }
-    catch(err){ setStatus('コピーに失敗したから、下の確認欄から手動コピーしてね。'); }
-    ta.remove();
+function refreshSend(){
+  const overall=frameText('overallFrame',['#fullPreview','#editor','#result']);
+  const gift=frameText('giftFrame',['#result','#fullPreview']);
+  const canvas=frameCanvas('illustrationFrame','#canvas');
+
+  $('#overallPreview').textContent=overall||'まだ全体メッセージがありません。';
+  $('#giftPreview').textContent=gift||'まだギフトメッセージがありません。';
+
+  const wrap=$('#imgWrap');
+  wrap.innerHTML='';
+  if(canvas){
+    try{
+      const img=document.createElement('img');
+      img.src=canvas.toDataURL('image/png');
+      wrap.appendChild(img);
+    }catch(e){
+      wrap.innerHTML='<div class="imgEmpty">画像を読み込めませんでした。</div>';
+    }
+  }else{
+    wrap.innerHTML='<div class="imgEmpty">イラストタブで作成すると<br>ここに現在の完成画像が出ます 🎨</div>';
   }
+  updateProgress(overall,gift,canvas);
+}
+$('#refreshAll').addEventListener('click',()=>{refreshSend();showNotice('完成内容を更新したよ');});
+
+async function copyText(text,msg){
+  if(!text){showNotice('まだコピーする内容がないよ');return}
+  try{await navigator.clipboard.writeText(text)}
+  catch(e){
+    const ta=document.createElement('textarea');
+    ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();
+  }
+  showNotice(msg);
 }
 
-$('#copyOverallBtn').addEventListener('click', async ()=>{
-  const text=frameValue('frameOverall', ['#fullPreview']);
-  await copyText(text,'全体メッセージをコピーしたよ！','全体メッセージがまだ空っぽだよ。');
-  $('#overallPreview').textContent = text || 'まだ全体メッセージがありません。';
+$('#sendCopyOverall').addEventListener('click',()=>{
+  const text=frameText('overallFrame',['#fullPreview','#editor','#result']);
+  copyText(text,'全体メッセージをコピーしたよ');
+});
+$('#sendCopyGift').addEventListener('click',()=>{
+  const text=frameText('giftFrame',['#result','#fullPreview']);
+  copyText(text,'ギフト文をコピーしたよ');
 });
 
-$('#copyGiftBtn').addEventListener('click', async ()=>{
-  const text=frameValue('frameGiftText', ['#result']);
-  await copyText(text,'ギフト文をコピーしたよ！','ギフト文がまだ空っぽだよ。');
-  $('#giftPreview').textContent = text || 'まだギフト文がありません。';
-});
-
-async function saveImageFromFrame(){
-  const doc=safeFrameDoc('frameImage');
-  const canvas=doc?.querySelector('#canvas');
-  if(!canvas){ setStatus('ありがとう画像がまだありません。'); return; }
-  const dataUrl = frameCanvasData('frameImage','#canvas');
-  if(dataUrl) $('#imagePreview').src = dataUrl;
-  const blob = await new Promise(resolve=> canvas.toBlob(resolve,'image/png'));
-  if(!blob){ setStatus('画像の保存に失敗したよ。'); return; }
-  const file = new File([blob], 'shuri-thanks-image.png', {type:'image/png'});
+$('#sendShareImage').addEventListener('click',async()=>{
+  const canvas=frameCanvas('illustrationFrame','#canvas');
+  if(!canvas){showNotice('まだイラストがないよ');return}
+  const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
+  if(!blob){showNotice('画像を作れなかったよ');return}
+  const file=new File([blob],'shuri-thanks-image.png',{type:'image/png'});
   try{
-    if(navigator.canShare && navigator.canShare({files:[file]}) && navigator.share){
-      await navigator.share({files:[file], title:'しゅり ありがとう画像'});
-      setStatus('画像の共有画面を開いたよ！');
+    if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+      await navigator.share({files:[file],title:'しゅり ありがとう画像'});
+      showNotice('共有画面を開いたよ');
       return;
     }
   }catch(e){
-    if(String(e).includes('AbortError')){ setStatus('共有をキャンセルしたよ。'); return; }
+    if(String(e).includes('AbortError'))return;
   }
-  const url = URL.createObjectURL(blob);
+  const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  a.href=url; a.download='shuri-thanks-image.png';
-  document.body.appendChild(a); a.click(); a.remove();
+  a.href=url;a.download='shuri-thanks-image.png';a.click();
   setTimeout(()=>URL.revokeObjectURL(url),1500);
-  setStatus('画像ファイルを保存したよ！');
+  showNotice('画像を保存したよ');
+});
+
+function bust(src){
+  const base=src.split('?')[0];
+  return `${base}?v=${Date.now()}`;
 }
-$('#saveImageBtn').addEventListener('click', saveImageFromFrame);
+function reloadFrame(id,src,label){
+  const fr=document.getElementById(id);
+  if(!fr)return;
+  fr.src=bust(src);
+  $('#updateStatus').textContent=`${label}だけ最新版に更新しました。`;
+}
+$$('[data-update]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const type=btn.dataset.update;
+    if(type==='illustration'){
+      if(!confirm('ありがとう画像を更新すると、今作っている途中の画像が消える可能性があります。\nそれでも最新版に更新する？')){
+        $('#updateStatus').textContent='ありがとう画像の更新はキャンセルしました。';
+        return;
+      }
+      reloadFrame('illustrationFrame','thankimage.html','ありがとう画像');
+      return;
+    }
+    if(type==='overall'){
+      reloadFrame('overallFrame','overall.html','全体メッセージ');
+      return;
+    }
+    if(type==='gift'){
+      reloadFrame('giftFrame','gift.html','ギフト');
+      return;
+    }
+    if(type==='supporter'){
+      // サポーターはギフト画面内の別ページ。別タブを開かずに最新版だけ取得しやすいよう、
+      // gift.html自体は触らず、supporter.htmlを新しいタブで開く。
+      window.open(`supporter.html?v=${Date.now()}`,'_blank');
+      $('#updateStatus').textContent='サポーター最新版を開きました。';
+    }
+  });
+});
 </script>
 </body>
 </html>
