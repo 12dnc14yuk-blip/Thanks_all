@@ -130,19 +130,349 @@
   .history-item{font-size:12px;padding:7px 6px;border-bottom:1px dashed #eadcc8;line-height:1.5}
   .history-item:last-child{border-bottom:0}
   @media(max-width:850px){
-    .grid{grid-template-columns:1fr}
+    .wrap{padding:10px}
+    .grid{grid-template-columns:1fr;gap:12px}
     .sticky{position:static}
     .preview{min-height:520px}
-    .stream-picker{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-    #extraStreamChips{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-    .stream-card{font-size:11px;min-height:64px;padding:8px 5px}
-    .stream-card small{font-size:8px}
-    #extraStreamChips .chip{font-size:10.5px;min-height:50px;padding:7px 4px}
+
+    /* スマホでは2列・高さ固定。縦長カード化を防ぐ */
+    .stream-picker{
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px;
+      align-items:start;
+    }
+    .stream-card{
+      width:100%;
+      height:74px;
+      min-height:74px;
+      max-height:74px;
+      padding:8px 7px;
+      font-size:12px;
+      line-height:1.22;
+      overflow:hidden;
+    }
+    .stream-card small{
+      font-size:9px;
+      line-height:1.15;
+      margin-top:5px;
+    }
+
+    #extraStreamChips{
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:7px;
+      align-items:start;
+    }
+    #extraStreamChips .chip{
+      width:100%;
+      height:48px;
+      min-height:48px;
+      max-height:48px;
+      padding:6px 6px;
+      font-size:10.5px;
+      line-height:1.15;
+      overflow:hidden;
+    }
+
+    .btnrow{gap:8px}
+    .btn{padding:11px 13px}
   }
   @media(max-width:390px){
-    .stream-picker{grid-template-columns:repeat(3,minmax(0,1fr))}
-    #extraStreamChips{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .stream-picker{grid-template-columns:repeat(2,minmax(0,1fr))}
+    #extraStreamChips{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .stream-card{height:72px;min-height:72px;max-height:72px;font-size:11.5px}
   }
+
+  /* v3 見やすさ調整 */
+  #generateLine,#regenLine{
+    min-height:52px;
+    font-size:15px;
+  }
+  @media(max-width:850px){
+    .section>.btnrow:has(#generateLine){
+      display:grid;
+      grid-template-columns:1fr 1fr;
+    }
+    #generateLine,#regenLine{
+      width:100%;
+      min-width:0;
+      margin:0;
+      white-space:normal;
+      line-height:1.25;
+    }
+    #applyLine{
+      width:100%;
+      min-height:48px;
+    }
+  }
+
+
+  /* v4 見やすさ再設計 */
+  .stepTitle{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 9px}
+  .stepTitle b{font-size:15px}
+  .stepBadge{font-size:10px;font-weight:900;color:#a96513;background:#fff0cf;border-radius:999px;padding:5px 8px}
+  .primaryBox{background:#fffdf8;border:1.5px solid #f0d8aa;border-radius:16px;padding:10px}
+  .frequentLabel{font-size:11px;font-weight:900;color:#8a6d52;margin:0 0 7px}
+  .frequentGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .frequentGrid .stream-card{height:58px;min-height:58px;max-height:58px;border-radius:12px;font-size:11.5px;padding:7px 6px}
+  .frequentGrid .stream-card small{font-size:8px;margin-top:3px}
+  .moreStreams{margin-top:8px;border:1px dashed #e6c984;border-radius:12px;padding:0;background:#fffaf0}
+  .moreStreams>summary{padding:10px 11px;font-size:11.5px;font-weight:900;list-style:none}
+  .moreStreams>summary::-webkit-details-marker{display:none}
+  .moreGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:0 8px 9px}
+  .moreGrid .stream-card{height:54px;min-height:54px;max-height:54px;border-radius:11px;font-size:10.5px;padding:6px}
+  .moreGrid .stream-card small{display:none}
+
+  .selectionDock{margin:9px 0 0;background:#fff4df;border:1px solid #efcf95;border-radius:12px;padding:8px 10px;font-size:11px!important;font-weight:900;color:#6b4d2b!important;line-height:1.45}
+
+  .optionFold{margin-top:10px;border:1.5px dashed #e4c77c;border-radius:14px;padding:0;background:#fffaf0}
+  .optionFold>summary{list-style:none;padding:11px 12px;font-size:12px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .optionFold>summary::-webkit-details-marker{display:none}
+  .optionFold>summary:after{content:'＋';font-size:16px;color:#9b7951}
+  .optionFold[open]>summary:after{content:'−'}
+  .optionBody{padding:0 10px 10px}
+  .optionBody .section{margin-top:10px}
+
+  .generateBar{display:grid;grid-template-columns:1.35fr .9fr;gap:8px;margin-top:12px}
+  .generateBar .btn{width:100%;min-height:50px;margin:0;font-size:13px;line-height:1.25;padding:10px}
+
+  .resultCard{margin-top:12px;background:#fff;border:1.5px solid #eadcc8;border-radius:16px;padding:11px}
+  .resultCard .label{margin-bottom:7px}
+  .resultCard textarea{min-height:150px;background:#fffdf9}
+  .resultCard #applyLine{width:100%;min-height:46px}
+
+  #extraStreamChips{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  #extraStreamChips .chip{height:42px;min-height:42px;max-height:42px;font-size:9.8px;padding:5px;line-height:1.1}
+  #stateChips .chip{font-size:10.5px;padding:8px 9px}
+
+  @media(max-width:850px){
+    .card{padding:12px}
+    .card h2{font-size:16px}
+    .hero{padding:14px 15px;border-radius:18px}
+    .hero h1{font-size:20px}
+    .hero p{font-size:11px;line-height:1.45}
+    .primaryBox{padding:9px}
+    .frequentGrid .stream-card{height:54px;min-height:54px;max-height:54px;font-size:11px}
+    .frequentGrid .stream-card small{display:none}
+    .moreGrid .stream-card{height:50px;min-height:50px;max-height:50px;font-size:10px}
+    .selectionDock{font-size:10.5px!important}
+    .generateBar{position:sticky;bottom:8px;z-index:4;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);padding:7px;border-radius:14px;border:1px solid #f0ddc6;box-shadow:0 6px 18px rgba(84,54,28,.10)}
+  }
+
+
+  /* v4.1 上部の空白をなくして横幅をフル活用 */
+  .primaryBox .stream-picker{
+    display:block !important;
+  }
+  .primaryBox .frequentGrid{
+    width:100%;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .primaryBox .moreStreams{
+    width:100%;
+    margin-top:9px;
+  }
+  .primaryBox .moreStreams>summary{
+    width:100%;
+    text-align:center;
+    padding:11px 12px;
+  }
+  .primaryBox .moreGrid{
+    width:100%;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  @media(max-width:850px){
+    .primaryBox .frequentGrid{
+      grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+    .primaryBox .moreGrid{
+      grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+  }
+
+
+  /* v5 すっきりタグUI */
+  .primaryBox{
+    background:transparent;
+    border:0;
+    border-radius:0;
+    padding:0;
+  }
+  .frequentLabel{
+    display:none;
+  }
+  .primaryBox .stream-picker{
+    display:block!important;
+  }
+  .primaryBox .frequentGrid,
+  .primaryBox .moreGrid{
+    display:flex!important;
+    flex-wrap:wrap;
+    gap:7px;
+    width:100%;
+  }
+  .primaryBox .stream-card,
+  .primaryBox .moreGrid .stream-card{
+    width:auto!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    flex:0 0 auto;
+    border-radius:999px!important;
+    padding:8px 11px!important;
+    font-size:11.5px!important;
+    line-height:1.1!important;
+    box-shadow:none!important;
+    background:#fff9ea;
+    border:1.5px solid #efcf95;
+  }
+  .primaryBox .stream-card small{
+    display:none!important;
+  }
+  .primaryBox .stream-card.active{
+    background:#ffb84b!important;
+    border-color:#f39a16!important;
+    color:#3b2207!important;
+    box-shadow:none!important;
+  }
+
+  .primaryBox .moreStreams{
+    width:auto!important;
+    margin-top:8px!important;
+    display:inline-block;
+    border:0!important;
+    background:transparent!important;
+    padding:0!important;
+  }
+  .primaryBox .moreStreams>summary{
+    width:auto!important;
+    display:inline-block!important;
+    border:1.5px dashed #e1bb68;
+    background:#fffdf7;
+    border-radius:999px;
+    padding:8px 11px!important;
+    text-align:left!important;
+    font-size:11px!important;
+    color:#7b5a2d;
+  }
+  .primaryBox .moreStreams[open]{
+    display:block;
+  }
+  .primaryBox .moreStreams[open]>summary{
+    margin-bottom:8px;
+  }
+  .primaryBox .moreGrid{
+    padding:0!important;
+  }
+
+  .selectionDock{
+    display:inline-flex!important;
+    width:auto!important;
+    max-width:100%;
+    margin:9px 0 0!important;
+    padding:6px 9px!important;
+    border-radius:999px!important;
+    background:#fff4df!important;
+    font-size:10.5px!important;
+    line-height:1.2!important;
+  }
+
+  .optionFold{
+    margin-top:12px!important;
+    border:0!important;
+    border-top:1px solid #eadcc8!important;
+    border-radius:0!important;
+    background:transparent!important;
+  }
+  .optionFold>summary{
+    padding:10px 0!important;
+    font-size:11.5px!important;
+    color:#755d4f;
+  }
+  .optionBody{
+    padding:2px 0 8px!important;
+  }
+
+  .generateBar{
+    display:flex!important;
+    justify-content:flex-start;
+    gap:8px;
+    margin-top:12px!important;
+    position:static!important;
+    background:transparent!important;
+    border:0!important;
+    box-shadow:none!important;
+    backdrop-filter:none!important;
+    padding:0!important;
+  }
+  .generateBar .btn{
+    width:auto!important;
+    min-height:0!important;
+    padding:10px 14px!important;
+    font-size:12px!important;
+    border-radius:12px!important;
+  }
+
+  .resultCard{
+    margin-top:14px!important;
+    border:1px solid #eadcc8!important;
+    box-shadow:none!important;
+    border-radius:16px!important;
+    padding:12px!important;
+  }
+  .resultCard textarea{
+    min-height:155px!important;
+    border:0!important;
+    background:#fffdf9!important;
+    box-shadow:none!important;
+    padding:10px!important;
+    font-size:13px!important;
+  }
+  .resultActions{
+    display:flex;
+    gap:8px;
+    margin-top:9px;
+  }
+  .resultActions .btn{
+    min-height:0!important;
+    padding:9px 12px!important;
+    font-size:11.5px!important;
+    border-radius:11px!important;
+  }
+  #applyLine{
+    width:auto!important;
+  }
+
+  #extraStreamChips{
+    display:flex!important;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  #extraStreamChips .chip,
+  #stateChips .chip{
+    width:auto!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    padding:7px 9px!important;
+    border-radius:999px!important;
+    font-size:10px!important;
+    line-height:1.1!important;
+    box-shadow:none!important;
+  }
+
+  @media(max-width:850px){
+    .card{padding:11px!important}
+    .stepTitle b{font-size:14px}
+    .stepBadge{font-size:9px;padding:4px 7px}
+    .primaryBox .stream-card,
+    .primaryBox .moreGrid .stream-card{
+      padding:7px 10px!important;
+      font-size:10.8px!important;
+    }
+    .generateBar .btn{padding:9px 12px!important}
+    .resultCard textarea{font-size:12.5px!important}
+  }
+
 </style>
 </head>
 <body>
@@ -159,33 +489,47 @@
         <input id="dateInput" style="max-width:150px;font-weight:900" />
       </div>
 
-      <h2 style="margin-top:16px">① 今日の配信、どれだった？</h2>
-      <div class="mini">配信が終わったあとに「今日はこれ！」を1つ選ぶだけ。必要ならあとから追加要素も足せます。</div>
+      <h2 style="margin-top:16px">今日の配信を選ぶ</h2>
+      <div class="mini">まず近いものを1つ。細かい追加は必要な時だけ開けばOK。</div>
 
       <div class="section">
-        <div class="label">👇 ここから「今日これだった！」を1つ選ぶ</div>
-        <div class="stream-picker" id="streamChips">
-<button class="stream-card" data-value="通常配信">いつもの感じだった<small>通常配信</small></button>
-<button class="stream-card" data-value="めっちゃ笑った配信">今日はめっちゃ笑った！<small>めっちゃ笑った配信</small></button>
-<button class="stream-card" data-value="ねむかった配信">眠くなりながら配信した<small>ねむかった配信</small></button>
-<button class="stream-card" data-value="短め配信">今日は短めだった<small>短め配信</small></button>
-<button class="stream-card" data-value="メイクしながら配信">メイクしながら喋った<small>メイクしながら配信</small></button>
-<button class="stream-card" data-value="ミュート放置">ほぼミュートで放置してた<small>ミュート放置</small></button>
-<button class="stream-card" data-value="配信→ミュート以降配信">途中からミュートになった<small>配信→ミュート以降配信</small></button>
-<button class="stream-card" data-value="ドタバタ配信">ずっとバタバタしてた<small>ドタバタ配信</small></button>
-<button class="stream-card" data-value="深夜枠">かなり深夜だった<small>深夜枠</small></button>
-<button class="stream-card" data-value="話題あり">今日は話したい話があった<small>話題あり</small></button>
-<button class="stream-card" data-value="歌フェス前歌枠">歌フェス前で緊張してた<small>歌フェス前歌枠</small></button>
-<button class="stream-card" data-value="仕事前配信">仕事前に配信した<small>仕事前配信</small></button>
-<button class="stream-card" data-value="お酒枠">お酒飲みながら配信した<small>お酒枠</small></button>
-<button class="stream-card" data-value="真面目枠">今日は真面目な話をした<small>真面目枠</small></button>
-<button class="stream-card" data-value="おふざけした枠">今日はめっちゃふざけた<small>おふざけした枠</small></button>
-<button class="stream-card" data-value="初見さん多かった枠">初見さんが多かった<small>初見さん多かった枠</small></button>
-<button class="stream-card" data-value="トラブルがあった配信">トラブルあったけど何とかなった<small>トラブルがあった配信</small></button>
-</div>
+        <div class="stepTitle"><b>今日の配信</b><span class="stepBadge">1つ選ぶ</span></div>
+        <div class="primaryBox">
+          <div class="frequentLabel">よく使う</div>
+          <div class="stream-picker" id="streamChips">
+            <div class="frequentGrid">
+<button class="stream-card" data-value="通常配信">いつもの<small>通常配信</small></button>
+<button class="stream-card" data-value="めっちゃ笑った配信">めっちゃ笑った<small>めっちゃ笑った配信</small></button>
+<button class="stream-card" data-value="ねむかった配信">ねむい<small>ねむかった配信</small></button>
+<button class="stream-card" data-value="短め配信">短め<small>短め配信</small></button>
+<button class="stream-card" data-value="メイクしながら配信">メイク<small>メイクしながら配信</small></button>
+<button class="stream-card" data-value="ミュート放置">ミュート<small>ミュート放置</small></button>
+<button class="stream-card" data-value="ドタバタ配信">ドタバタ<small>ドタバタ配信</small></button>
+<button class="stream-card" data-value="深夜枠">深夜<small>深夜枠</small></button>
+            </div>
+            <details class="moreStreams">
+              <summary>＋ その他の配信タイプ</summary>
+              <div class="moreGrid">
+<button class="stream-card" data-value="配信→ミュート以降配信">途中からミュート<small>配信→ミュート以降配信</small></button>
+<button class="stream-card" data-value="話題あり">話題あり<small>話題あり</small></button>
+<button class="stream-card" data-value="歌フェス前歌枠">歌フェス前<small>歌フェス前歌枠</small></button>
+<button class="stream-card" data-value="仕事前配信">仕事前<small>仕事前配信</small></button>
+<button class="stream-card" data-value="お酒枠">お酒<small>お酒枠</small></button>
+<button class="stream-card" data-value="真面目枠">真面目<small>真面目枠</small></button>
+<button class="stream-card" data-value="おふざけした枠">おふざけ<small>おふざけした枠</small></button>
+<button class="stream-card" data-value="初見さん多かった枠">初見さん多め<small>初見さん多かった枠</small></button>
+<button class="stream-card" data-value="トラブルがあった配信">トラブル<small>トラブルがあった配信</small></button>
+              </div>
+            </details>
+          </div>
+          <div class="selectionDock" id="selectionSummary">選択中：未選択</div>
+        </div>
       </div>
 
-      <div class="section">
+      <details class="optionFold">
+        <summary>＋ 追加情報</summary>
+        <div class="optionBody">
+<div class="section">
         <div class="label">＋ 追加で当てはまるもの（任意）</div>
         <div class="chips" id="extraStreamChips">
 <button class="chip" data-value="通常配信">通常配信</button>
@@ -240,20 +584,19 @@
         <input id="eventText" placeholder="例：途中でマイク切れた / なぜかゴリラの話になった" />
       </div>
 
-      <div class="section">
-        <div class="btnrow">
-          <button class="btn primary" id="generateLine">✨ この配信で一言を作る！</button>
-          <button class="btn pink" id="regenLine">🔄 別の言い方</button>
-        </div>
-        <div class="mini" style="margin-top:8px">同じ配信タイプでも、感想・感謝・締めを別々に引くので毎回かなり変わります。</div>
+              </div>
+      </details>
+
+<div class="generateBar">
+        <button class="btn primary" id="generateLine">✨ 一言を作る</button>
       </div>
 
-      <div class="section">
-        <div class="mini" id="selectionSummary" style="margin-bottom:8px">選択中：未選択</div>
+      <div class="resultCard">
         <div class="label">生成された「今日の配信どうだった？」</div>
         <textarea id="dailyMessage" rows="5" placeholder="ここに生成されます。直接修正OK！"></textarea>
-        <div class="btnrow">
+        <div class="resultActions">
           <button class="btn green" id="applyLine">✓ 本文に反映</button>
+          <button class="btn pink" id="regenLine">🔄 別の言い方</button>
         </div>
       </div>
 
@@ -775,18 +1118,29 @@ const SHURI_EXTRA_LINES = {
 };
 
 function shuriEmojiTail(){
-  const pools=[
-    ["😚","✨"],["😭","‼️"],["🐰","✨"],["🥳","🙌"],["☺️","🫰🏼"],["😇","ww"],["✊","✨"]
-  ];
-  const p=pick(pools);
-  return p.join("");
+  // 1回につき1個だけ。文中にすでに絵文字がある場合は追加しない。
+  return pick(["😚","😭","🐰","🥳","☺️","😇","✊","✨","🙌"]);
 }
-
+function hasEmojiLike(text){
+  return /[\u{1F000}-\u{1FAFF}\u2600-\u27BF]/u.test(text);
+}
 function shuriPunctuate(text){
-  let t=text.trim();
-  const endings=["！！","〜！！","‼️","〜！","！！！！！"];
-  if(!/[！!。？?‼️]$/.test(t) && Math.random()<.72)t+=pick(endings);
-  if(Math.random()<.58)t+=shuriEmojiTail();
+  let t=String(text||"").trim();
+
+  // 末尾がすでに ! / ？ / 。/ 絵文字なら盛らない。
+  if(!/[！!。？?]$/.test(t) && !hasEmojiLike([...t].slice(-3).join("")) && Math.random()<.52){
+    t+=pick(["！！","〜！","！"]);
+  }
+
+  // 絵文字は文中に無い時だけ、低確率で1つ。
+  if(!hasEmojiLike(t) && Math.random()<.22){
+    t+=shuriEmojiTail();
+  }
+
+  // 記号の暴走を軽く整える。
+  t=t.replace(/！{4,}/g,"！！！")
+     .replace(/‼️{2,}/g,"‼️")
+     .replace(/✨{2,}/g,"✨");
   return t;
 }
 
@@ -881,6 +1235,12 @@ function buildGeneratedLine(){
   if(result.length>260 && parts.length>4){
     result=parts.slice(1).filter(Boolean).join(" ").replace(/\s{2,}/g," ").trim();
   }
+  // 近接する同じ絵文字・記号だけ整理。文章内容は変えない。
+  result=result
+    .replace(/(😚|😭|🐰|🥳|☺️|😇|✊|✨|🙌)(?:\s*\1)+/gu,"$1")
+    .replace(/！{4,}/g,"！！！")
+    .replace(/\s{2,}/g," ")
+    .trim();
   return result;
 }
 function randomizeDesign(){
