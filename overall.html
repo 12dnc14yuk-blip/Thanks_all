@@ -643,10 +643,7 @@
             <div class="label">YouTube</div><input id="youtubeUrl" value="https://www.youtube.com/@syu10ri6">
           </div>
           <div class="section">
-            <div class="label">GUIDE</div><input id="guideUrl" value="https://wp.me/PgSfZN-2">
-          </div>
-          <div class="section">
-            <div class="label">GIFT GUIDE｜ギフト芸図鑑</div><input id="giftGuideUrl" value="https://syu-ri6.github.io/Gift_gei/">
+            <div class="label">公式ホームページ</div><input id="officialUrl" value="https://shuriririririri-official.jpr6rp5b5v.chatgpt.site">
           </div>
         </details>
       </div>
@@ -1287,8 +1284,7 @@ function buildFull(){
   const x=document.getElementById("xUrl").value.trim();
   const tt=document.getElementById("tiktokUrl").value.trim();
   const yt=document.getElementById("youtubeUrl").value.trim();
-  const guide=document.getElementById("guideUrl").value.trim();
-  const giftGuide=document.getElementById("giftGuideUrl").value.trim();
+  const official=document.getElementById("officialUrl").value.trim();
 
   return `${hook}
 
@@ -1313,11 +1309,11 @@ ${tt}
 📺 MOVIE｜YouTube
 ${yt}
 
-📖 GUIDE｜プロフィール・思い出・弾幕
-${guide}
+🌐 OFFICIAL｜公式ホームページ
+${official}
 
-🎁 GIFT GUIDE｜ギフト芸図鑑
-${giftGuide}
+プロフィールやギフト芸図鑑など、
+いろいろまとめてます✨
 
 🐰 FAN NAME｜#しゅりなー
 💪🏻🐰 FAN MARK｜💪🏻🐰
@@ -1357,7 +1353,7 @@ function saveDraft(){
   const data={
     date:dateInput.value, hook:hookInput.value, status:statusInput.value, thanks:thanksInput.value,
     drop:dropInput.value, ending:endingInput.value, daily:dailyMessage.value,
-    x:xUrl.value,tiktok:tiktokUrl.value,youtube:youtubeUrl.value,guide:guideUrl.value,giftGuide:giftGuideUrl.value,
+    x:xUrl.value,tiktok:tiktokUrl.value,youtube:youtubeUrl.value,official:officialUrl.value,
     preview:fullPreview.value
   };
   localStorage.setItem("shuriri_thanks_draft",JSON.stringify(data));
@@ -1376,8 +1372,7 @@ function loadDraft(){
     xUrl.value=d.x||xUrl.value;
     tiktokUrl.value=d.tiktok||tiktokUrl.value;
     youtubeUrl.value=d.youtube||youtubeUrl.value;
-    guideUrl.value=d.guide||guideUrl.value;
-    giftGuideUrl.value=d.giftGuide||giftGuideUrl.value;
+    officialUrl.value=d.official||officialUrl.value;
     fullPreview.value=d.preview||"";
     return true;
   }catch(e){return false}
@@ -1437,7 +1432,7 @@ document.getElementById("copyAll").onclick=async()=>{
 };
 document.getElementById("clearHistory").onclick=()=>{localStorage.removeItem("shuriri_thanks_history");renderHistory()};
 
-["dateInput","hookInput","statusInput","thanksInput","dropInput","endingInput","dailyMessage","xUrl","tiktokUrl","youtubeUrl","guideUrl","giftGuideUrl","fullPreview"]
+["dateInput","hookInput","statusInput","thanksInput","dropInput","endingInput","dailyMessage","xUrl","tiktokUrl","youtubeUrl","officialUrl","fullPreview"]
 .forEach(id=>{
   document.getElementById(id).addEventListener("input",()=>{
     if(id==="fullPreview") saveDraft();
