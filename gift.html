@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>ありがとうメッセージメーカー v15.4 自動名前認識＋ラッキーアイテム100</title>
+<title>ありがとうメッセージメーカー v16 名前辞書整理＋ラッキー100</title>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
 :root{
@@ -212,6 +212,69 @@ input,select,textarea{padding:7px 8px;font-size:13px;border-radius:9px}
 }
 </style>
 
+
+<style id="v16-ui">
+.v16DictSummary{
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+  margin:6px 0 8px;font-size:11px;color:var(--muted)
+}
+.v16PersonGroup{
+  border:1px solid var(--line);border-radius:12px;background:#fff;margin:7px 0;overflow:hidden
+}
+.v16PersonGroup>summary{
+  list-style:none;display:flex;align-items:center;gap:7px;
+  padding:9px 10px;cursor:pointer;font-weight:900;font-size:13px
+}
+.v16PersonGroup>summary::-webkit-details-marker{display:none}
+.v16PersonGroup>summary:after{content:"＋";margin-left:auto;color:var(--muted);font-size:16px}
+.v16PersonGroup[open]>summary:after{content:"−"}
+.v16AliasCount{font-size:10px;color:#826e61;background:#f3efec;border-radius:999px;padding:3px 6px}
+.v16Risk{font-size:9px;color:#9b6710;background:#fff0bf;border-radius:999px;padding:3px 6px}
+.v16GroupBody{padding:0 10px 10px}
+.v16GroupTools{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:end;margin:3px 0 8px}
+.v16GroupTools label{font-size:10px}
+.v16AliasList{display:flex;flex-direction:column;gap:5px}
+.v16AliasRow{
+  display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;
+  border:1px solid #eee3dc;border-radius:9px;padding:5px 6px;background:#fffdfa
+}
+.v16AliasText{font-size:10px;line-height:1.35;word-break:break-all}
+.v16AliasRow button,.v16MergeBtn{
+  padding:5px 7px!important;border-radius:8px!important;font-size:9px!important
+}
+.v16MergeBox{
+  margin:8px 0 0;padding:7px;border:1px solid #f0d18a;border-radius:9px;background:#fffaf0;
+  font-size:10px
+}
+.v16MergeBtns{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.v16DictDanger{background:#fff1ef!important;color:#a3483e!important}
+
+.v16LuckyPanel{
+  border:1px solid var(--line);border-radius:13px;background:#fffdf9;
+  padding:9px;margin:0 0 9px
+}
+.v16LuckyHead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.v16LuckyHead b{font-size:12px}
+.v16LuckyAll{padding:7px 9px!important;font-size:10px!important;border-radius:9px!important}
+.v16LuckyRows{display:flex;flex-direction:column;gap:6px}
+.v16LuckyRow{
+  display:grid;grid-template-columns:auto 1fr auto;gap:7px;align-items:center;
+  border:1px solid #eee0d6;border-radius:10px;padding:7px;background:#fff
+}
+.v16LuckyMedal{font-size:18px}
+.v16LuckyName{font-size:11px;font-weight:900}
+.v16LuckyValue{font-size:10px;color:#6f5a4d;line-height:1.35;margin-top:2px}
+.v16LuckyReroll{
+  padding:7px 8px!important;border-radius:9px!important;font-size:10px!important;
+  background:#fff3d5!important;color:#7b571c!important
+}
+@media(max-width:560px){
+  .v16GroupTools{grid-template-columns:1fr}
+  .v16LuckyRow{grid-template-columns:auto 1fr}
+  .v16LuckyReroll{grid-column:1/-1;width:100%}
+}
+</style>
+
 </head>
 <body>
 <div class="wrap">
@@ -219,8 +282,8 @@ input,select,textarea{padding:7px 8px;font-size:13px;border-radius:9px}
     <a class="active" href="index.html">🎁 ありがとう</a>
     <a class="other" href="supporter.html">🌷 サポーター</a>
   </nav>
-  <h1>🐰 ありがとうメッセージメーカー v15.4</h1>
-  <p class="lead">ダークモード専用。登録済み189パターンを内蔵。自信が高い常連は自動変換、微妙な時だけ「この人かも？」で確認。ラッキーアイテムは100種類・重複なし抽選。</p>
+  <h1>🐰 ありがとうメッセージメーカー v16</h1>
+  <p class="lead">名前辞書を「1人＝1まとまり」に整理。OCRの崩れはその人の別名として学習。TOP3のラッキー○○は最近の重複を避けて抽選＆個別シャッフルできます。</p>
 
   <section class="card">
     <h2>① スクショを入れる</h2>
@@ -255,12 +318,12 @@ input,select,textarea{padding:7px 8px;font-size:13px;border-radius:9px}
 
   <section class="card">
     <h2>③ 名前辞書</h2>
-    <p class="note">認識名→本文名（ニックネーム）を登録。次回、同じ人を読み取ったら本文だけ自動変換します。</p>
+    <p class="note">1人につき1まとまりで管理します。OCRの読み崩れは「別名」としてその人の中に追加され、次回から自動で拾います。</p>
     <details class="dictDetails" id="dictDetails">
-      <summary>📖 登録した名前を見る <span id="dictCount" class="miniCount">0件</span></summary>
+      <summary>📖 名前辞書を見る <span id="dictCount" class="miniCount">0人</span></summary>
       <div class="dictTools">
-        <input id="dictSearch" type="search" placeholder="🔎 認識名・ニックネームを検索" autocomplete="off">
-        <div class="dictHead"><span>認識名</span><span>本文名（ニックネーム）</span><span></span></div>
+        <input id="dictSearch" type="search" placeholder="🔎 名前・OCR別名を検索" autocomplete="off">
+        <div class="v16DictSummary" id="v16DictSummary"></div>
       </div>
       <div id="dictPanel"></div>
     </details>
@@ -1008,7 +1071,7 @@ function v15NameSuggestions(name, limit=3){
   return [...grouped.values()].sort((a,b)=>b.score-a.score || b.support-a.support).slice(0,limit);
 }
 
-const V154_BUILTIN_NICK_SEED={"田汗の神社の守り和神村(&":"先輩","もゃも底.区":"もも","はるろら 。":"ぽち","Dp~0 jg &":"りゅう","みつばち補ジョージ上申":"ジョージ","9がのらうはしじしゆりちやゃやんの可有違いかのら":"かのら","mm mmギル":"こうちゃん","うつさき@ゐあ":"うさぎ","計Rs o":"茶屑","[ここ丁半 | LLAL TM上":"みーくん","DDAD":"PPAP","レレリキリキキールキーー":"えぬけけ","— — ノコTl ee人のヘーロー":"ブラン","mmy = JLe aa":"みるきぃちゃん","キッアトププもへテナーブナ":"おひるねこちゃん","Koga_98":"Koga","白狐編巫女":"白狐さん","へA+有人つれポニ":"loveit","1]1 )1]..7":"リルイ","ーーローローァロー上昌旧":"おちゃチャ","GrayMouser/Xem= AKAグレ":"グレ","BRE4直(つきしろけい)":"けいちゃん","らいと@。!『7":"らいと","朋Train同しe Social中OK":"Train","りんごの@そせい屋":"りんご","ブフン・ブワール邊ああF2L25HFP:":"ブラン","ハハ11ここ":"ハリー","Fs .,すす =poO":"じゃんぴー","【壁ニキ】てつ":"てっちゃん","Dip~0 joあ":"りゅう","nirvana _ロー":"nirvana","月白惹急邊(つきしろけい)":"けいちゃん","EKADGGe @":"わみちゃん","もも":"もも","YYVY4VY":"もも","ざさゆーまる気>":"きゅーまる","ゆウーや【公式】":"ゆーや","9がのらうはじゅゆりちやんの可愛いかのらンソン":"かのら","めゆのら":"あゆむ","Dp~0あ":"りゅう","ーードドノーv Dall #ーー":"つばんぬ","Ba i I % » u\\d -~ »":"キャリバーン","b scrh+Ah PP==ty HEi=Zと":"ゆずさん","ナム":"なぎさん","回問関本関 |":"ナマエ","フトズご天ぃんム(つつ":"おひるねこちゃん","田告の神社の守り律王族":"先輩","vgゅふに0アナイレ":"はやみん","Aa":"Aa","らいと@。":"らいと","惨力イト":"カイト","BKHDGGe @":"わみちゃん","まっうし一":"まっしー","Ch CARBRAHVINEINE=Z' ATT":"瓜生","ぽんぽこりん文丁原万独子 -<.所":"まりこ","ワリのきらけりのみこ":"ぴゅまと","n":"nai","哨品らいら品< EGR7] 7 9":"らいらちゃん","びぴゅ(R) F&NEY":"ぴゅまと","田舎の神社の守り神林&":"先輩","みつばちジョージルた罰":"ジョージ","9かのら$るはしじしゆゅりちゃんの可愛いかのらいん":"かのら","FRRN":"ハリー","[キーーー":"透","BKADGGe &":"わみちゃん","まっし一":"まっしー","妃炭(ひずみ) 4 &":"ひず","MANUS#| L":"ばにら","りんご(@そせい屋":"りんご","PPAP":"PPAP","Ba i I % » u\\d -~ 『":"キャリバーン","のーーにまい人とエV":"ゆーや","哨品らいら< 〇 1堂絆ガナw":"らいらちゃん","9がかがのらはしじしゅりちゃんの可愛いかのら 〇":"かのら","みつばち半ジョージた曜":"ジョージ","晴品らいら雇< @塞紙ガナパ":"らいらちゃん","Z5":"透","ワゆーめ |lg &":"りゅう","あめゆのら":"あゆむ","枚力イト":"カイト","mes SB用誠四上導":"むいちゃん","東光微謡人エンジョイ熱":"東","7人 / リイギーンームー上牛五男子+":"まりこ","コロロニ / フトードコ \\ F LI":"ひず","ーナ1 J":"ブレス","も 、 有学O":"やっぴ〜","Dip~0 [ak":"りゅう","=- 吉 / <- 吉人EEIdMMIN)ICS BEMAE | プービレ":"瓜生","ニテデェーーコー1 _":"ほはっちゃん","上4+何人人命":"もも","aq . vw A A":"ジョージ","nmーこoOしMl":"りゅう","—_ ¥ 半癌癌":"まっしー","CravlhoiicariaiE= AKA 71,":"グレ","Laデーブーレッーービビ1ルームゃヽルル上+ゃ1":"十六夜","で7古寺":"みーくん","ーー1\\ レスフラ":"らいと","ピー一関一生L, F | |":"まあたん","へいい7ハーこのペナーー、 レー和志5ヾコ4AR":"かのら","ゴー 」』」+トliーーデンンプビーネネ中テラ":"てるてる","人ケーにワロ王王 / レトト二 = フロルーンレい":"みことちゃん","loveit d低当上3析":"loveit","ロコ斗ティナナ笑い":"ティナ","ンー -eローアアて":"りゅう","田千の入社の守り神TT F":"先輩","ーーとーーsa護隊鳥A":"ジョージ","[ZF4+=":"ぽち","YA八":"PPAP","A_ M TZ\\\\—+)":"ゆーや","[FLIFNL ALIETFRHEHZ. » +4":"まりこ","- こュー = ヒビヒンa&ニー":"きゅーまる","ーー1ーーア7":"ブレス","ブヒレヒ漢ドスケ当便所ゴリランド多>":"ブヒドスケ便所ゴリランド","へナハこのいた -、 レ五世5ナミ1 dAR":"かのら","たとた":"めめさん","枚カイト":"カイト","大鳥れんな / 低)学上":"れんな","9がのらうをもっと可愛がかれ超":"かのら","©YOeV":"もも","Faw F — 2ee= wn § Os . T":"りんご","みつばち層ジョージたM":"ジョージ","りゅー6@ん 。 M":"りゅう","人抽直3F EfEEEt ET TE T PT S PE SE BREPE":"mugensun","人抽直3\nF E\nfEE\nEt E\nT TE T PT S PE SE BREPE":"mugensun","コロロコ / フトードブ \\ 上記し0":"ひず","mouh emE aammm dER y J - r a— m O k":"バモス","ああめるnsr 85 W0":"めるちゃん","回本癌回":"たーくん","1ロロ1":"推し探し","1 JA. =0":"ともぴ","[Eis]":"尊ちゃん","ーラーーテッーーテア —~":"ファズ","ブンアーーご放任還o o表加コリ » o":"りゅう","はら 。c":"ぽち","みつばちジョージルた思":"ジョージ","—_—=a,ノロロー日分aa人<のバー一AC":"ブラン","ーーいい7 wvi BoBみみのご":"つばんぬ","十日 -- 占7":"朝太郎","HBIihrt= la oea o":"野崎守れないさん","で7ルル5コーHHESH":"みーくん","mmロアmsいいmm F 0L4":"ひず","P a | 性":"らいと","— e=p L_] -":"てるてる","生生 § _ _= _d. _ F回回1":"おひるねこちゃん","人 ¥VrrtT —F eem oen dd 2D":"白狐さん","111]..7":"リルイ","DVII":"Ryu","惨カイト":"カイト","りんごと@そせい屋":"りんご","—\\目[":"ブレス","—\\\n目[":"ブレス","かのら":"かのら","プンーーアア 「!アッブー物に4計ブププリーらち>ぅOUーー、 ーーへここコローー":"ブヒドスケ便所ゴリランド","リト 、 あい 、 すすアア一に":"ゆーや","— 員ィーュのへ1 mm vvゼレ":"こうちゃん","ブプアーーごe &":"りゅう","HEDMLLDTOH T7 &":"先輩","がかがのら":"かのら","しーー加計_ TL IE上":"みーくん","OIvioo—7 Boofox=":"にあ","もゃーーも 。":"らいと","wal l, I= だ |J& |4":"えぬけけ","= ヒンプンーーL":"まるちゃん","B . pe— 『 ——":"ひろぽん","本v 4 mmーーーーmm mm AAh l":"白狐さん","ーーがリー1 mTMエエュノー":"Loveit","性カカイト":"カイト","もも5Q@":"もも","白狐給巫女耳59期生":"白狐さん","Dip~0なM":"りゅう","みつばち宏ジョージ人性":"ジョージ","がぴのら":"かのら","mmアアma av amミスミALAA":"ひず","プンーーアリブッブー特じじにに77夫デブプリ!論人>aa S ow .":"ブヒドスケ便所ゴリランド","プンーーアリブッブー特じじにに77夫デブプリ!論人>\naa S ow .":"ブヒドスケ便所ゴリランド","ユや丸.ム,":"はやみん","vJ VICEE":"けん先輩","!よはよらco":"ぽち","ブンジーご時のIE a cs DE » .":"りゅう","~ん未 “":"みことちゃん","ーールル":"あゃめ","田汗の和神社の守り和神林&":"先輩","MY.eri l.し «":"野崎守れない","CravloiicariaiE= AKA /7].,":"グレ","ーーアテ":"ブレス","| = ヒビンプ":"しそまるさん","HEEMNTITI=F2Z":"世界の王になる","Zoo / Yo == L 5他合":"ぴゅまと","才ユ / ソーービーヽノDef O0":"ジェギュン"};
+const V154_BUILTIN_NICK_SEED={"田汗の神社の守り和神村(&":"先輩","もゃも底.区":"もも","はるろら 。":"ぽち","Dp~0 jg &":"りゅう","みつばち補ジョージ上申":"ジョージ","9がのらうはしじしゆりちやゃやんの可有違いかのら":"かのら","mm mmギル":"こうちゃん","うつさき@ゐあ":"うさぎ","計Rs o":"茶屑","[ここ丁半 | LLAL TM上":"みーくん","DDAD":"PPAP","レレリキリキキールキーー":"えぬけけ","— — ノコTl ee人のヘーロー":"ブラン","mmy = JLe aa":"みるきぃちゃん","キッアトププもへテナーブナ":"おひるねこちゃん","Koga_98":"Koga","白狐編巫女":"白狐さん","へA+有人つれポニ":"loveit","1]1 )1]..7":"リルイ","ーーローローァロー上昌旧":"おちゃチャ","GrayMouser/Xem= AKAグレ":"グレ","BRE4直(つきしろけい)":"けいちゃん","らいと@。!『7":"らいと","朋Train同しe Social中OK":"Train","りんごの@そせい屋":"りんご","ブフン・ブワール邊ああF2L25HFP:":"ブラン","ハハ11ここ":"ハリー","Fs .,すす =poO":"じゃんぴー","【壁ニキ】てつ":"てっちゃん","Dip~0 joあ":"りゅう","nirvana _ロー":"nirvana","月白惹急邊(つきしろけい)":"けいちゃん","EKADGGe @":"わみちゃん","もも":"もも","YYVY4VY":"もも","ざさゆーまる気>":"きゅーまる","ゆウーや【公式】":"ゆーや","9がのらうはじゅゆりちやんの可愛いかのらンソン":"かのら","めゆのら":"あゆむ","Dp~0あ":"りゅう","ーードドノーv Dall #ーー":"つばんぬ","Ba i I % » u\\d -~ »":"キャリバーン","b scrh+Ah PP==ty HEi=Zと":"ゆずさん","ナム":"なぎさん","回問関本関 |":"ナマエ","フトズご天ぃんム(つつ":"おひるねこちゃん","田告の神社の守り律王族":"先輩","vgゅふに0アナイレ":"はやみん","Aa":"Aa","らいと@。":"らいと","惨力イト":"カイト","BKHDGGe @":"わみちゃん","まっうし一":"まっしー","Ch CARBRAHVINEINE=Z' ATT":"瓜生","ぽんぽこりん文丁原万独子 -<.所":"まりこ","ワリのきらけりのみこ":"ぴゅまと","n":"nai","哨品らいら品< EGR7] 7 9":"らいらちゃん","びぴゅ(R) F&NEY":"ぴゅまと","田舎の神社の守り神林&":"先輩","みつばちジョージルた罰":"ジョージ","9かのら$るはしじしゆゅりちゃんの可愛いかのらいん":"かのら","FRRN":"ハリー","[キーーー":"透","BKADGGe &":"わみちゃん","まっし一":"まっしー","妃炭(ひずみ) 4 &":"ひず","MANUS#| L":"ばにら","りんご(@そせい屋":"りんご","PPAP":"PPAP","Ba i I % » u\\d -~ 『":"キャリバーン","のーーにまい人とエV":"ゆーや","哨品らいら< 〇 1堂絆ガナw":"らいらちゃん","9がかがのらはしじしゅりちゃんの可愛いかのら 〇":"かのら","みつばち半ジョージた曜":"ジョージ","晴品らいら雇< @塞紙ガナパ":"らいらちゃん","Z5":"透","ワゆーめ |lg &":"りゅう","あめゆのら":"あゆむ","枚力イト":"カイト","mes SB用誠四上導":"むいちゃん","東光微謡人エンジョイ熱":"東","7人 / リイギーンームー上牛五男子+":"まりこ","コロロニ / フトードコ \\ F LI":"ひず","ーナ1 J":"ブレス","も 、 有学O":"やっぴ〜","Dip~0 [ak":"りゅう","=- 吉 / <- 吉人EEIdMMIN)ICS BEMAE | プービレ":"瓜生","ニテデェーーコー1 _":"ほはっちゃん","上4+何人人命":"もも","aq . vw A A":"ジョージ","nmーこoOしMl":"りゅう","—_ ¥ 半癌癌":"まっしー","CravlhoiicariaiE= AKA 71,":"グレ","Laデーブーレッーービビ1ルームゃヽルル上+ゃ1":"十六夜","で7古寺":"みーくん","ーー1\\ レスフラ":"らいと","ピー一関一生L, F | |":"まあたん","へいい7ハーこのペナーー、 レー和志5ヾコ4AR":"かのら","ゴー 」』」+トliーーデンンプビーネネ中テラ":"てるてる","人ケーにワロ王王 / レトト二 = フロルーンレい":"みことちゃん","loveit d低当上3析":"loveit","ロコ斗ティナナ笑い":"ティナ","ンー -eローアアて":"りゅう","田千の入社の守り神TT F":"先輩","ーーとーーsa護隊鳥A":"ジョージ","[ZF4+=":"ぽち","YA八":"PPAP","A_ M TZ\\\\—+)":"ゆーや","[FLIFNL ALIETFRHEHZ. » +4":"まりこ","- こュー = ヒビヒンa&ニー":"きゅーまる","ーー1ーーア7":"ブレス","ブヒレヒ漢ドスケ当便所ゴリランド多>":"ブヒドスケ便所ゴリランド","へナハこのいた -、 レ五世5ナミ1 dAR":"かのら","たとた":"めめさん","枚カイト":"カイト","大鳥れんな / 低)学上":"れんな","9がのらうをもっと可愛がかれ超":"かのら","©YOeV":"もも","Faw F — 2ee= wn § Os . T":"りんご","みつばち層ジョージたM":"ジョージ","りゅー6@ん 。 M":"りゅう","人抽直3F EfEEEt ET TE T PT S PE SE BREPE":"mugensun","人抽直3\nF E\nfEE\nEt E\nT TE T PT S PE SE BREPE":"mugensun","コロロコ / フトードブ \\ 上記し0":"ひず","mouh emE aammm dER y J - r a— m O k":"バモス","ああめるnsr 85 W0":"めるちゃん","回本癌回":"たーくん","1ロロ1":"推し探し","1 JA. =0":"ともぴ","[Eis]":"尊ちゃん","ーラーーテッーーテア —~":"ファズ","ブンアーーご放任還o o表加コリ » o":"りゅう","はら 。c":"ぽち","みつばちジョージルた思":"ジョージ","—_—=a,ノロロー日分aa人<のバー一AC":"ブラン","ーーいい7 wvi BoBみみのご":"つばんぬ","十日 -- 占7":"朝太郎","HBIihrt= la oea o":"野崎守れないさん","で7ルル5コーHHESH":"みーくん","mmロアmsいいmm F 0L4":"ひず","P a | 性":"らいと","— e=p L_] -":"てるてる","生生 § _ _= _d. _ F回回1":"おひるねこちゃん","人 ¥VrrtT —F eem oen dd 2D":"白狐さん","111]..7":"リルイ","DVII":"Ryu","惨カイト":"カイト","りんごと@そせい屋":"りんご","—\\目[":"ブレス","—\\\n目[":"ブレス","かのら":"かのら","プンーーアア 「!アッブー物に4計ブププリーらち>ぅOUーー、 ーーへここコローー":"ブヒドスケ便所ゴリランド","リト 、 あい 、 すすアア一に":"ゆーや","— 員ィーュのへ1 mm vvゼレ":"こうちゃん","ブプアーーごe &":"りゅう","HEDMLLDTOH T7 &":"先輩","がかがのら":"かのら","しーー加計_ TL IE上":"みーくん","OIvioo—7 Boofox=":"にあ","もゃーーも 。":"らいと","wal l, I= だ |J& |4":"えぬけけ","= ヒンプンーーL":"まるちゃん","B . pe— 『 ——":"ひろぽん","本v 4 mmーーーーmm mm AAh l":"白狐さん","ーーがリー1 mTMエエュノー":"Loveit","性カカイト":"カイト","もも5Q@":"もも","白狐給巫女耳59期生":"白狐さん","Dip~0なM":"りゅう","みつばち宏ジョージ人性":"ジョージ","がぴのら":"かのら","mmアアma av amミスミALAA":"ひず","プンーーアリブッブー特じじにに77夫デブプリ!論人>aa S ow .":"ブヒドスケ便所ゴリランド","プンーーアリブッブー特じじにに77夫デブプリ!論人>\naa S ow .":"ブヒドスケ便所ゴリランド","ユや丸.ム,":"はやみん","vJ VICEE":"けん先輩","!よはよらco":"ぽち","ブンジーご時のIE a cs DE » .":"りゅう","~ん未 “":"みことちゃん","ーールル":"あゃめ","田汗の和神社の守り和神林&":"先輩","MY.eri l.し «":"野崎守れない","CravloiicariaiE= AKA /7].,":"グレ","ーーアテ":"ブレス","| = ヒビンプ":"しそまるさん","HEEMNTITI=F2Z":"世界の王になる","Zoo / Yo == L 5他合":"ぴゅまと","才ユ / ソーービーヽノDef O0":"ジェギュン","先輩":"先輩","ぽち":"ぽち","りゅう":"りゅう","ジョージ":"ジョージ","こうちゃん":"こうちゃん","うさぎ":"うさぎ","茶屑":"茶屑","みーくん":"みーくん","えぬけけ":"えぬけけ","ブラン":"ブラン","みるきぃちゃん":"みるきぃちゃん","おひるねこちゃん":"おひるねこちゃん","Koga":"Koga","白狐さん":"白狐さん","loveit":"loveit","リルイ":"リルイ","おちゃチャ":"おちゃチャ","グレ":"グレ","けいちゃん":"けいちゃん","らいと":"らいと","Train":"Train","りんご":"りんご","ハリー":"ハリー","じゃんぴー":"じゃんぴー","てっちゃん":"てっちゃん","nirvana":"nirvana","わみちゃん":"わみちゃん","きゅーまる":"きゅーまる","ゆーや":"ゆーや","あゆむ":"あゆむ","つばんぬ":"つばんぬ","キャリバーン":"キャリバーン","ゆずさん":"ゆずさん","なぎさん":"なぎさん","ナマエ":"ナマエ","はやみん":"はやみん","カイト":"カイト","まっしー":"まっしー","瓜生":"瓜生","まりこ":"まりこ","ぴゅまと":"ぴゅまと","nai":"nai","らいらちゃん":"らいらちゃん","透":"透","ひず":"ひず","ばにら":"ばにら","むいちゃん":"むいちゃん","東":"東","ブレス":"ブレス","やっぴ〜":"やっぴ〜","ほはっちゃん":"ほはっちゃん","十六夜":"十六夜","まあたん":"まあたん","てるてる":"てるてる","みことちゃん":"みことちゃん","ティナ":"ティナ","ブヒドスケ便所ゴリランド":"ブヒドスケ便所ゴリランド","めめさん":"めめさん","れんな":"れんな","mugensun":"mugensun","バモス":"バモス","めるちゃん":"めるちゃん","たーくん":"たーくん","推し探し":"推し探し","ともぴ":"ともぴ","尊ちゃん":"尊ちゃん","ファズ":"ファズ","朝太郎":"朝太郎","野崎守れないさん":"野崎守れないさん","Ryu":"Ryu","にあ":"にあ","まるちゃん":"まるちゃん","ひろぽん":"ひろぽん","Loveit":"Loveit","けん先輩":"けん先輩","あゃめ":"あゃめ","野崎守れない":"野崎守れない","しそまるさん":"しそまるさん","世界の王になる":"世界の王になる","ジェギュン":"ジェギュン","大鳥れんな / 1眉学上":"れんな","りんご@そせい屋":"りんご","ブンアーーご放任I o » TEE, » o":"りゅう","モミドドの \\ へ中ミエにロロ":"たき","みつばち宮ジョージ上申":"ジョージ","田汗の神社の守り和神林(&":"先輩","白狐編巫女末59期生":"白狐さん","B— ec wud a上e am較詳ソリッッ":"トレイン","5 4V":"もも","= ビニビニ 、 有ーー":"まっしー","「 3 ——V a—":"ファズ","ビデカテんルんん,ニーコTL II ~し 。":"みーくん","ァo,」 / マツッoc -- し他倫":"ぴゅまと","Sx=MEl,L\\APMEEE |":"うさぎ","い":"い","~>ノノヴー, ]トコし — riリドいい4ハハ":"ふくちゃん","ププーーセア!ブッヽヾブー特にに7計ププブププリーらちらぅーーて":"ブヒドスケ便所ゴリランド","大鳥れんな / 低浮上":"れんな","りゅー6@ん上記":"りゅう","loveit &低浮上3析":"loveit","もも師直":"もも","« !!で! o5 v区ごリリペーピロてBsLUテーて":"トレイン","« !!で! o5 v区ごリリペーピロてBs\nLUテーて":"トレイン","9がのら$?&こ本のゾソワルメイトムたえ":"かのら","ニーエーIpは一 、 =7T LL. PF上カルルッ —":"たき","りゅー6 [a M":"りゅう","みつばち補ジョージ6 &":"ジョージ","9がのら$@ぬこ棟のソワルメイトムたムえ":"かのら","テーニー_デュん":"ちーちゃん","【よのら 。o":"ぽち","ン士皿&NdE 。 ロロヶ往 =":"結月","プンーーアア!プッヽブ物577内ブプブごプリ!内凶OLニーテーて":"ブヒドスケ便所ゴリランド","HI AH=+AH":"やまや","- ビピナトキ2Z (18挟ナチナトい":"さなまる","『『 「 B | mm -.":"ティナ","ゆーや【公式】":"ゆーや","ゅかのら@ぬこ様のソウルメイトムたえ":"かのら","CravloiicariaiE= AKA 1,":"グレ","ァo.。 / マoco\\ == し5 0H":"ぴゅまと","ーーatemy wheles —— y o — —m § AY %":"きり","ブンアーー\"a品DE. -":"りゅう","ブンアーー\n\"a品DE. -":"りゅう","ーーロロ / コでこつ@n 2と":"こうちゃん","Vや » V":"もも","プンロビドスノブノ性天 「 堆づコブブンプント記名":"ブヒドスケ便所ゴリランド","— — | 生":"らいと","レレリルレールレーールレーールルレー":"えぬけね","f—— - 時和幸 -— am r— - r- re":"うりくん","しーー | 間癌":"こーと","aa":"ふくちゃん","LIDA © @&三立ハハリエマップンっバム在":"ひろ","laveit S人上つれニ":"laveit","ューだRN":"みずか","Zlraingyg F CVV/INI1S汗":"とれいん","みつばち宮ジョージム上申":"ジョージ","9がかがのら$ぬこ様のソウワルメイトムぇ":"かのら","ブプアテーご » の":"りゅう","rewade . - —":"てっちゃん","— — L § p— THTY ( | Iーーrmたーーニル(":"ブラン","gaーーavニニs B A A":"ひず","カーキ":"バオさん","NITlカローーロニ思いエニエーニー人他答)":"モレッタ","みつばち補ジョージ46 &":"ジョージ","刀灰【ひ3すみ) 6あ":"ひず","IFLIFT\"NL ~iHHETFEHEH=Z . +'":"まりこ","HEDHMDTFTOM T &":"先輩","ロー一ョ須 『 L3":"たき","和上_FF . mm _ pr—":"さくもり","II目プイ":"リルイ","9がのらめ?204こ人恒のソワルメイトムたえ":"かのら","りゅー$Sん刻":"りゅう","IF5,":"ぽち","(rvN4niicar色久之AKAグレし":"グレ","拓還ススススススギャッッリリの次":"はる","+ロー1Yいいーーーーノ":"キャリバーン","9がのら$@ぬこ棟のソワソワルメイトムたムえ":"かのら","白狐府巫女了丘59期":"白狐さん","へ 、 に = にピコEBAEEANRAIA J. A5 BETHi EET":"生ハム","moアァいい1ここ1 ON SA":"ぴゅまと","天鳥れんな":"れんな","!よはよら 。":"ぽち","9がのら$やぬこ棟のソゾワルメイトムたぇ":"かのら","Yooに0アナイレ":"はやみん","もも誠区":"もも","1.\\":"い","ロッーーテーラリへへし 、":"ヤマニン","ャ人ププ私MAN":"めるちゃん","Ne=EHE e= て7":"きつね","Ei 7ーーニーリー<たてゴルソい":"ぶらひも","ブナョードに - 人た":"みずかちゃん","みつばち初ジョージ県":"ジョージ","ゅかのら$@ぬこ様のソウルメイトムたえ":"かのら","9がのら$ぷぬこ棟のソゾソワルメイトムたぇ":"かのら","いい.,すす =poO":"じゃんぴー","白狐編巫女耳59期":"白狐さん","田舎の神社の守り神打&":"先輩","びゅ(ぷぷ)まとき区":"ぴゅまと","a m miTM a rr——S":"アンパンマン","ーー1 7":"ブレス","= フェガーニーテリガーニーローホキモモ士ソロyヽミッ, jioOs 。 ピコロmfたルーゴーiiパコL":"瓜生","プロのドスノブノブノBWIXKHAIYづコブブンンド6":"ブヒドスケ便所ゴリランド"};
 const V154_AUTO_LEARN_KEY='shuri_v154_auto_learned_aliases';
 function v154SeedNameDictionary(){
   let changed=false;
@@ -1171,6 +1234,431 @@ const v14OldAnalyze=analyze;
 analyze=async function(){await v14OldAnalyze();state.people.forEach(p=>{p.name=v14NormalizeName(p.name)});renderPeople();v14Strip();generateResult()};
 const v14OldFile=document.getElementById('file').onchange;
 document.getElementById('file').onchange=async function(e){await v14OldFile.call(this,e);v14Strip()};
+
+
+// ================================
+// v16 名前辞書・TOP3ラッキー再設計
+// ================================
+const V16_DICT_KEY='shuri_v16_people_dict';
+const V16_LUCKY_BAGS_KEY='shuri_v16_lucky_bags';
+const V16_LUCKY_HISTORY_KEY='shuri_v16_lucky_history';
+
+let v16PeopleDict=[];
+let v16BonusState={signature:'',bonuses:[]};
+
+function v16Id(){return 'p_'+Math.random().toString(36).slice(2,8)+Date.now().toString(36)}
+function v16N(s){return v14NormalizeName(String(s||''))}
+function v16RiskAlias(s){
+  const n=v16N(s);
+  return n.length<=2 || /^[A-Za-z0-9]{1,3}$/.test(n);
+}
+function v16BuildPeopleFromNick(map){
+  const groups=new Map();
+  for(const [raw,nickRaw] of Object.entries(map||{})){
+    const alias=v16N(raw), nick=v16N(nickRaw);
+    if(!alias||!nick)continue;
+    if(!groups.has(nick))groups.set(nick,{id:v16Id(),displayName:nick,aliases:[],createdAt:Date.now(),updatedAt:Date.now(),learnedCount:0});
+    const p=groups.get(nick);
+    if(!p.aliases.includes(alias))p.aliases.push(alias);
+  }
+  for(const p of groups.values())if(!p.aliases.includes(p.displayName))p.aliases.push(p.displayName);
+  return [...groups.values()];
+}
+function v16LoadPeopleDict(){
+  let saved=null;
+  try{saved=JSON.parse(localStorage.getItem(V16_DICT_KEY)||'null')}catch(e){}
+  if(Array.isArray(saved)&&saved.length){
+    v16PeopleDict=saved.map(p=>({
+      id:p.id||v16Id(),displayName:v16N(p.displayName),aliases:[...new Set((p.aliases||[]).map(v16N).filter(Boolean))],
+      createdAt:p.createdAt||Date.now(),updatedAt:p.updatedAt||Date.now(),learnedCount:Number(p.learnedCount||0)
+    })).filter(p=>p.displayName);
+    // 最新seedや端末側旧辞書にだけ存在するものを取りこぼさない
+    const merged=v16BuildPeopleFromNick(state.nick);
+    for(const incoming of merged){
+      let hit=v16PeopleDict.find(p=>p.displayName===incoming.displayName);
+      if(!hit){v16PeopleDict.push(incoming);continue}
+      for(const a of incoming.aliases)if(!hit.aliases.includes(a))hit.aliases.push(a);
+    }
+  }else{
+    v16PeopleDict=v16BuildPeopleFromNick(state.nick);
+  }
+  v16SyncNickMap();
+  v16PersistPeople();
+}
+function v16PersistPeople(){
+  localStorage.setItem(V16_DICT_KEY,JSON.stringify(v16PeopleDict));
+}
+function v16SyncNickMap(){
+  const map={};
+  for(const p of v16PeopleDict){
+    const name=v16N(p.displayName);if(!name)continue;
+    map[name]=name;
+    for(const a of p.aliases||[])if(v16N(a))map[v16N(a)]=name;
+  }
+  state.nick=map;
+  localStorage.setItem('shuri_v13_nick',JSON.stringify(state.nick));
+}
+function v16PersistAll(){
+  v16SyncNickMap();v16PersistPeople();
+  localStorage.setItem('shuri_v13_corrections',JSON.stringify(state.corrections));
+}
+const v16OldPersist=persist;
+persist=function(){v16PersistAll()};
+
+function v16FindPersonByDisplay(name){
+  const n=v16N(name);
+  return v16PeopleDict.find(p=>p.displayName===n)
+      ||v16PeopleDict.find(p=>p.displayName.toLocaleLowerCase('ja')===n.toLocaleLowerCase('ja'));
+}
+function v16FindByAlias(raw){
+  const n=v16N(raw);if(!n)return null;
+  return v16PeopleDict.find(p=>(p.aliases||[]).includes(n))||null;
+}
+function v16RememberAlias(raw,displayName){
+  const alias=v16N(raw), disp=v16N(displayName);
+  if(!disp)return null;
+  let p=v16FindPersonByDisplay(disp);
+  if(!p){
+    p={id:v16Id(),displayName:disp,aliases:[disp],createdAt:Date.now(),updatedAt:Date.now(),learnedCount:0};
+    v16PeopleDict.push(p);
+  }
+  if(alias&&!p.aliases.includes(alias))p.aliases.push(alias);
+  if(!p.aliases.includes(disp))p.aliases.push(disp);
+  p.updatedAt=Date.now();p.learnedCount=(p.learnedCount||0)+1;
+  v16PersistAll();return p;
+}
+nicknameFor=function(name){
+  const exact=v16FindByAlias(name);
+  if(exact)return exact.displayName;
+  const n=v16N(name); if(!n)return name;
+  const hits=v15NameSuggestions(n,1);
+  return hits[0]&&hits[0].score>=.88?hits[0].nick:name;
+};
+v15ExactAlias=function(name){
+  const p=v16FindByAlias(name);
+  return p?{official:v16N(name),nick:p.displayName,score:1}:null;
+};
+v15NameSuggestions=function(name,limit=3){
+  const n=v16N(name);if(!n)return[];
+  const results=[];
+  for(const p of v16PeopleDict){
+    let best=0,bestAlias='',support=0;
+    for(const a of p.aliases||[]){
+      const s=similarity(a,n);
+      if(s>=.42)support++;
+      if(s>best){best=s;bestAlias=a}
+    }
+    if(best>=.42)results.push({official:bestAlias,nick:p.displayName,score:best,support});
+  }
+  return results.sort((a,b)=>b.score-a.score||b.support-a.support).slice(0,limit);
+};
+v154AutoAlias=function(name){
+  const n=v16N(name);if(!n)return null;
+  const exact=v16FindByAlias(n);
+  if(exact)return {official:n,nick:exact.displayName,score:1,support:99,exact:true,auto:true};
+  const hits=v15NameSuggestions(n,5);if(!hits.length)return null;
+  const best=hits[0],second=hits[1]?.score??0,margin=best.score-second;
+  // 短すぎるOCRは誤爆しやすいので自動確定しない
+  const safe=!v16RiskAlias(n);
+  const auto=safe&&((best.score>=.72&&margin>=.07)||(best.score>=.63&&margin>=.12&&(best.support||0)>=2));
+  return {...best,exact:false,auto,margin};
+};
+v154RememberAutoAlias=function(raw,nick,score){
+  const k=v16N(raw),n=v16N(nick);
+  if(!k||!n||v16RiskAlias(k))return false;
+  const before=v16FindByAlias(k);
+  if(before)return false;
+  v16RememberAlias(k,n);
+  let log={};
+  try{log=JSON.parse(localStorage.getItem(V154_AUTO_LEARN_KEY)||'{}')||{}}catch(e){}
+  log[k]={nick:n,score:Number(score||0),at:Date.now()};
+  localStorage.setItem(V154_AUTO_LEARN_KEY,JSON.stringify(log));
+  return true;
+};
+
+function v16RenamePerson(id,newName){
+  const p=v16PeopleDict.find(x=>x.id===id),n=v16N(newName);if(!p||!n)return;
+  const old=p.displayName;p.displayName=n;
+  if(!p.aliases.includes(old))p.aliases.push(old);
+  if(!p.aliases.includes(n))p.aliases.push(n);
+  p.updatedAt=Date.now();v16PersistAll();renderDict();renderPeople();generateResult();
+}
+function v16DeleteAlias(id,alias){
+  const p=v16PeopleDict.find(x=>x.id===id);if(!p)return;
+  p.aliases=(p.aliases||[]).filter(a=>a!==alias||a===p.displayName);
+  v16PersistAll();renderDict();
+}
+function v16DeletePerson(id){
+  const p=v16PeopleDict.find(x=>x.id===id);if(!p)return;
+  if(!confirm(`「${p.displayName}」を辞書から削除しますか？`))return;
+  v16PeopleDict=v16PeopleDict.filter(x=>x.id!==id);
+  v16PersistAll();renderDict();renderPeople();generateResult();
+}
+function v16MergePeople(fromId,toId){
+  if(fromId===toId)return;
+  const from=v16PeopleDict.find(x=>x.id===fromId),to=v16PeopleDict.find(x=>x.id===toId);
+  if(!from||!to)return;
+  for(const a of from.aliases||[])if(!to.aliases.includes(a))to.aliases.push(a);
+  if(!to.aliases.includes(from.displayName))to.aliases.push(from.displayName);
+  to.learnedCount=(to.learnedCount||0)+(from.learnedCount||0);
+  to.updatedAt=Date.now();
+  v16PeopleDict=v16PeopleDict.filter(x=>x.id!==fromId);
+  v16PersistAll();renderDict();renderPeople();generateResult();
+  setStatus(`「${from.displayName}」を「${to.displayName}」に統合しました。`);
+}
+function v16MergeCandidates(p){
+  return v16PeopleDict
+    .filter(q=>q.id!==p.id)
+    .map(q=>({p:q,s:Math.max(similarity(p.displayName,q.displayName),
+      p.displayName.toLocaleLowerCase('ja')===q.displayName.toLocaleLowerCase('ja')?1:0)}))
+    .filter(x=>x.s>=.70)
+    .sort((a,b)=>b.s-a.s).slice(0,3);
+}
+
+renderDict=function(){
+  const el=document.getElementById('dictPanel');
+  const q=v16N(document.getElementById('dictSearch')?.value||'').toLocaleLowerCase('ja');
+  const totalAliases=v16PeopleDict.reduce((n,p)=>n+(p.aliases?.length||0),0);
+  if(document.getElementById('dictCount'))document.getElementById('dictCount').textContent=v16PeopleDict.length+'人';
+  const s=document.getElementById('v16DictSummary');
+  if(s)s.innerHTML=`<span>${v16PeopleDict.length}人</span><span>OCR別名 ${totalAliases}件</span><span>短い注意別名 ${v16PeopleDict.reduce((n,p)=>n+(p.aliases||[]).filter(v16RiskAlias).length,0)}件</span>`;
+  let list=v16PeopleDict
+    .filter(p=>!q||p.displayName.toLocaleLowerCase('ja').includes(q)||(p.aliases||[]).some(a=>a.toLocaleLowerCase('ja').includes(q)))
+    .sort((a,b)=>a.displayName.localeCompare(b.displayName,'ja'));
+  el.innerHTML='';
+  if(!list.length){el.innerHTML='<p class="note">検索に一致する名前はありません。</p>';return}
+  for(const p of list){
+    const risky=(p.aliases||[]).filter(v16RiskAlias).length;
+    const merges=v16MergeCandidates(p);
+    const d=document.createElement('details');d.className='v16PersonGroup';
+    d.innerHTML=`<summary><span>${escapeHtml(p.displayName)}</span><span class="v16AliasCount">別名 ${p.aliases.length}</span>${risky?`<span class="v16Risk">注意 ${risky}</span>`:''}</summary>
+      <div class="v16GroupBody">
+        <div class="v16GroupTools">
+          <label>本文名<input data-v16-name="${p.id}" value="${attr(p.displayName)}"></label>
+          <button class="secondary smallbtn v16DictDanger" data-v16-delete="${p.id}">この人を削除</button>
+        </div>
+        <div class="v16AliasList">
+          ${p.aliases.map(a=>`<div class="v16AliasRow"><div class="v16AliasText">${escapeHtml(a)} ${v16RiskAlias(a)?'<span class="v16Risk">自動確定しない</span>':''}</div>${a!==p.displayName?`<button class="secondary" data-v16-alias-del="${p.id}" data-v16-alias="${attr(a)}">削除</button>`:'<span></span>'}</div>`).join('')}
+        </div>
+        ${merges.length?`<div class="v16MergeBox"><b>🔗 同じ人かも？</b><div class="v16MergeBtns">${merges.map(x=>`<button class="secondary v16MergeBtn" data-v16-merge-from="${p.id}" data-v16-merge-to="${x.p.id}">${escapeHtml(x.p.displayName)} に統合 <small>${Math.round(x.s*100)}%</small></button>`).join('')}</div></div>`:''}
+      </div>`;
+    el.appendChild(d);
+  }
+  el.querySelectorAll('[data-v16-name]').forEach(inp=>inp.onchange=()=>v16RenamePerson(inp.dataset.v16Name,inp.value));
+  el.querySelectorAll('[data-v16-delete]').forEach(b=>b.onclick=()=>v16DeletePerson(b.dataset.v16Delete));
+  el.querySelectorAll('[data-v16-alias-del]').forEach(b=>b.onclick=()=>v16DeleteAlias(b.dataset.v16AliasDel,b.dataset.v16Alias));
+  el.querySelectorAll('[data-v16-merge-from]').forEach(b=>b.onclick=()=>v16MergePeople(b.dataset.v16MergeFrom,b.dataset.v16MergeTo));
+};
+
+document.getElementById('exportBtn').onclick=()=>{
+  const data={version:16,people:v16PeopleDict,nick:state.nick,corrections:state.corrections,exportedAt:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='shuriri-name-dictionary-v16.json';a.click();URL.revokeObjectURL(a.href);
+};
+document.getElementById('importFile').onchange=async e=>{
+  try{
+    const j=JSON.parse(await e.target.files[0].text());
+    if(Array.isArray(j.people))v16PeopleDict=j.people;
+    else if(j.nick)v16PeopleDict=v16BuildPeopleFromNick(j.nick);
+    else throw new Error('unsupported');
+    state.corrections=Array.isArray(j.corrections)?j.corrections:[];
+    v16PeopleDict=v16PeopleDict.map(p=>({...p,id:p.id||v16Id(),displayName:v16N(p.displayName),aliases:[...new Set((p.aliases||[]).map(v16N).filter(Boolean))]})).filter(p=>p.displayName);
+    v16PersistAll();renderDict();renderLearn();renderPeople();generateResult();
+    setStatus(`V16辞書を読み込みました。${v16PeopleDict.length}人を登録中です。`);
+  }catch(err){alert('辞書の読み込みに失敗しました')}
+};
+
+// 既存renderPeopleの「覚える」「この人かも？」はv16へ同期するようイベント後に補強
+const v16OldRenderPeople=renderPeople;
+renderPeople=function(){
+  v16OldRenderPeople();
+  const el=document.getElementById('people');
+  el.querySelectorAll('[data-save]').forEach(b=>{
+    b.onclick=()=>{
+      const i=+b.dataset.save,p=state.people[i],card=el.querySelectorAll('.person')[i];
+      const official=v16N(card.querySelector('[data-k=name]').value);
+      const nick=v16N(card.querySelector('[data-k=nick]').value)||official;
+      if(!official)return;
+      v16RememberAlias(official,nick);
+      if(p.ocrName)v16RememberAlias(p.ocrName,nick);
+      if(p.nameRaw)v16RememberAlias(p.nameRaw,nick);
+      p.name=official;p.tempNick=nick;p.learned=true;
+      renderDict();renderPeople();generateResult();
+      setStatus(`「${nick}」として覚えました。OCRの崩れ方も同じ人の別名にまとめました。`);
+    };
+  });
+  el.querySelectorAll('[data-maybe-i]').forEach(b=>{
+    b.onclick=()=>{
+      const i=+b.dataset.maybeI,j=+b.dataset.maybeJ,p=state.people[i];
+      const hit=v15NameSuggestions(p.name,3)[j];if(!hit)return;
+      v16RememberAlias(p.ocrName||p.nameRaw||p.name,hit.nick);
+      v16RememberAlias(p.name,hit.nick);
+      p.tempNick=hit.nick;p.learned=true;
+      renderDict();renderPeople();generateResult();
+      setStatus(`「${hit.nick}」として覚えました。次回からこの読み方は自動変換します。`);
+    };
+  });
+};
+
+// ---------- Lucky 100 ----------
+const V16_ITEM_POOL=["イヤホン！","ハンカチ！","ボールペン！","メモ帳！","クリアファイル！","ヘアゴム！","ミニタオル！","手鏡！","リップクリーム！","折りたたみ傘！","トートバッグ！","キーホルダー！","マグカップ！","タンブラー！","スニーカー！","靴下！","腕時計！","スマホケース！","充電ケーブル！","モバイルバッテリー！","ノート！","付箋！","ペンケース！","クリップ！","ステッカー！","クッション！","ブランケット！","帽子！","サングラス！","ネックレス！","リング！","ブレスレット！","巾着！","ポーチ！","財布！","カードケース！","エコバッグ！","水筒！","スプーン！","フォーク！","お箸！","小皿！","ぬいぐるみ！","アクスタ！","缶バッジ！","扇子！","しおり！","お気に入りの本！","カレンダー！","マスキングテープ！","やたら長いレシート！","片方だけの靴下！","輪ゴム3本！","使いかけの付箋！","ちょっと曲がったクリップ！","昔もらったシール！","謎のケーブル！","いつ買ったか分からないペン！","透明のクリアファイル！","小さい紙袋！","余ってるボタン！","でっかい洗濯ばさみ！","ちっちゃいスプーン！","やたら冷たいスプーン！","空の箱！","ふわふわのタオル！","角が丸くなった消しゴム！","半端な長さの鉛筆！","使ってない巾着！","なんか可愛い石！","机の奥のマスキングテープ！","昔のポイントカード！","予備のイヤホン！","ポケットの中の小銭！","一番派手な靴下！","昔のキーホルダー！","でかめのヘアクリップ！","ちびノート！","使えるクーポン！","名前の分からない文房具！","ティッシュ1枚！","保冷剤！","つまようじ！","ストロー！","ガチャガチャのカプセル！","謎のネジ！","紙コップ！","洗濯ネット！","菜箸！","しゃもじ！","耳かき！","鉛筆削り！","コースター！","マグネット！","ジップ袋！","食パンの袋を止めるアレ！","一番小さい持ち物！","今日まだ使ってない小物！","カバンの底にいる何か！","なぜか捨てられないもの！"];
+const V16_FOOD_BASE=["プリン","チョコ","アイス","グミ","ポテト","おにぎり","たまご焼き","カレー","ラーメン","うどん","パン","ホットケーキ","ドーナツ","クッキー","ヨーグルト","いちご","バナナ","みかん","りんご","チーズ","からあげ","オムライス","たこ焼き","コーンスープ","ミルクティー"];
+const V16_SPOT_BASE=["冷蔵庫の前","ベッドの上","窓の近く","コンビニ","駅のホーム","自販機の前","本屋","スーパーのお菓子売り場","公園のベンチ","横断歩道の手前","エレベーターの前","玄関","キッチン","机の下","ソファの端","カーテンの近く","鏡の前","階段の途中","いつもの道","ちょっと静かな場所","日なた","日かげ","充電器の近く","お気に入りの席","家のいちばん落ち着く場所"];
+const V16_ACTION_BASE=["好きな曲を1曲聴く","水をひと口飲む","肩をぐるっと回す","深呼吸を3回する","スマホを裏返して30秒置く","机の上を1個だけ片づける","好きなお菓子をひと口食べる","窓の外を見る","今日できたことを1個思い出す","意味なくガッツポーズする","背伸びする","靴ひもを結び直す","写真フォルダを1枚だけ見る","メモを1行書く","お茶をいれる","顔を洗う","前髪を整える","好きな絵文字を1個送る","5秒だけ目を閉じる","ちょっとだけ散歩する","推しを見る","部屋の電気を一回消してつける","小銭を1枚触る","今日の予定を1個消す","何もしない時間を1分つくる"];
+const V16_SOUND_BASE=["ﾎﾟﾖﾝｯ","ﾋﾟﾛﾘﾝｯ","ﾃﾚﾚﾝｯ","ﾎﾟﾝｯ","ﾋﾟｺｯ","ｷﾗｰﾝ","ﾄﾞﾝｯ","ﾁｬﾘｰﾝ","ﾊﾟﾌｯ","ﾋﾟﾋﾟｯ","ﾓﾁｯ","ﾌﾟﾙﾙｯ","ﾊﾟﾁﾊﾟﾁｯ","ﾋｭｰﾝ","ﾎﾟｺｯ","ﾍﾟﾁｯ","ﾋﾟｮﾝｯ","ﾌﾜｯ","ｼｬｷｰﾝ","ﾁｰﾝ","ﾆｭｯ","ﾋﾟｶｰﾝ","ﾄｩﾙﾝｯ","ﾊﾞﾊﾞﾝｯ","ﾃﾃｰﾝ"];
+const V16_PHRASE_BASE=["自分に甘くてヨシ","今日はここまででヨシ","なんか知らんけど大丈夫","一回寝たらだいたい何とかなる","今日も生きててえらい","それ明日の自分に任せよ","まあいっかで進める","できた分だけ勝ち","ちょっと休んだらHP回復","気分が乗ったらやればいい","今日は省エネモードでヨシ","笑えたらだいたい勝ち","とりあえず水飲も","無理な日は無理でヨシ","やる気はあとから来るかも","今日の自分に拍手","一個できたら十分","何もしないも予定です","眠いなら寝るが正解","好きなもの見て回復しよ","明日なんとかなる気がする","今日はHP＋1だけで十分","焦らなくてヨシ","ちょっと楽しいがあれば勝ち","今日もなんだかんだやった"];
+const V16_SUPER_BASE=["なんか知らんけど大吉","今日だけ主人公補正","謎の無敵タイム突入","急に運が味方する日","今日はちょっとだけ強い","忘れた頃にいいこと来る","偶然が味方しそう","一回だけミラクル発動","今日は勘が当たりそう","小さいラッキーが連鎖する","なんか全部ギリうまくいく","思ったよりどうにかなる","今日の選択たぶん正解","謎にタイミングがいい","ちょうど欲しいものが見つかる","ちょっと得する予感","いつもより1ミリ運がいい","今日は回復速度＋1","HPが減ってもすぐ戻る","困った時に助け舟が来る","忘れ物しても何とかなる","急にいい案が降ってくる","ちょっと嬉しい通知が来る","欲しかった言葉が聞ける","最後にちゃんと帳尻合う"];
+
+function v16Expand100(bases,variants,category){
+  const out=[];
+  bases.forEach((base,bi)=>variants.forEach((fn,vi)=>out.push({
+    id:`${category}_${bi}_${vi}`,
+    text:fn(base),
+    tags:[category,`base_${bi}`]
+  })));
+  return out.slice(0,100);
+}
+const V16_LUCKY_POOLS={
+  food:v16Expand100(V16_FOOD_BASE,[
+    x=>`${x}！`,x=>`${x}をひとくち！`,x=>`${x}をゆっくり味わう！`,x=>`${x}＋好きな飲み物！`
+  ],'food'),
+  spot:v16Expand100(V16_SPOT_BASE,[
+    x=>`${x}！`,x=>`${x}の近く！`,x=>`${x}の端っこ！`,x=>`${x}で30秒休憩！`
+  ],'spot'),
+  item:V16_ITEM_POOL.map((text,i)=>({id:`item_${i}`,text,tags:['item',text.replace(/[！!]/g,'')]})),
+  action:v16Expand100(V16_ACTION_BASE,[
+    x=>`${x}！`,x=>`${x}、30秒だけ！`,x=>`${x}、いつもより丁寧に！`,x=>`${x}、気が向いたら！`
+  ],'action'),
+  sound:v16Expand100(V16_SOUND_BASE,[
+    x=>`${x}！`,x=>`${x}♪`,x=>`${x}‼️`,x=>`${x}×2！`
+  ],'sound'),
+  phrase:v16Expand100(V16_PHRASE_BASE,[
+    x=>`${x}！！`,x=>`${x}🐰`,x=>`${x}✊`,x=>`${x}✨`
+  ],'phrase'),
+  super:v16Expand100(V16_SUPER_BASE,[
+    x=>`${x}ｯ！！`,x=>`${x}✨`,x=>`${x}（たぶん）`,x=>`${x}＋1！！`
+  ],'super'),
+  time:Array.from({length:100},(_,i)=>{
+    const h=(i*7+6)%24,m=(i*13+((i%4)*7))%60;
+    const text=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}！`;
+    return {id:`time_${i}`,text,tags:['time',String(h)]};
+  })
+};
+const V16_LUCKY_CATS=[
+  {key:'food',label:'🍮 ラッキーフード'},
+  {key:'spot',label:'📍 ラッキースポット'},
+  {key:'item',label:'🎧 ラッキーアイテム'},
+  {key:'action',label:'🎯 ラッキー行動'},
+  {key:'sound',label:'🔊 ラッキー効果音'},
+  {key:'time',label:'⏰ ラッキータイム'},
+  {key:'phrase',label:'🐰 ラッキーひとこと'},
+  {key:'super',label:'✨ SUPER BONUS'}
+];
+
+function v16LoadLuckyStore(key,def){
+  try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(def))}catch(e){return def}
+}
+function v16SaveLuckyStore(key,v){localStorage.setItem(key,JSON.stringify(v))}
+function v16TextSimilarity(a,b){
+  const x=String(a||'').replace(/[！!✨🐰✊♪‼️（）()＋+0-9:：\s]/g,''),y=String(b||'').replace(/[！!✨🐰✊♪‼️（）()＋+0-9:：\s]/g,'');
+  if(!x||!y)return 0;
+  return similarity(x,y);
+}
+function v16DrawLucky(catKey,exclude=[]){
+  const pool=V16_LUCKY_POOLS[catKey]||[];
+  let bags=v16LoadLuckyStore(V16_LUCKY_BAGS_KEY,{});
+  let history=v16LoadLuckyStore(V16_LUCKY_HISTORY_KEY,{});
+  let bag=Array.isArray(bags[catKey])?bags[catKey].filter(id=>pool.some(x=>x.id===id)):[];
+  const recent=Array.isArray(history[catKey])?history[catKey].slice(0,20):[];
+  if(!bag.length){
+    const recentSet=new Set(recent);
+    bag=pool.filter(x=>!recentSet.has(x.id)).map(x=>x.id);
+    if(bag.length<20)bag=pool.map(x=>x.id);
+  }
+  let candidates=bag.map(id=>pool.find(x=>x.id===id)).filter(Boolean);
+  let safe=candidates.filter(x=>!exclude.some(e=>e.id===x.id || v16TextSimilarity(e.text,x.text)>=.72));
+  if(!safe.length)safe=candidates;
+  const picked=safe[Math.floor(Math.random()*safe.length)]||pool[Math.floor(Math.random()*pool.length)];
+  bag=bag.filter(id=>id!==picked.id);
+  bags[catKey]=bag;
+  history[catKey]=[picked.id,...recent.filter(id=>id!==picked.id)].slice(0,20);
+  v16SaveLuckyStore(V16_LUCKY_BAGS_KEY,bags);v16SaveLuckyStore(V16_LUCKY_HISTORY_KEY,history);
+  return picked;
+}
+function v16TopSignature(top){return top.map(p=>p.id).join('|')}
+function v16DrawAllBonuses(top){
+  const catPool=[...V16_LUCKY_CATS].sort(()=>Math.random()-.5).slice(0,top.length);
+  const chosen=[];
+  const bonuses=top.map((p,i)=>{
+    const cat=catPool[i];
+    const value=v16DrawLucky(cat.key,chosen.map(x=>x.value));
+    const b={personId:p.id,catKey:cat.key,label:cat.label,value};
+    chosen.push(b);return b;
+  });
+  v16BonusState={signature:v16TopSignature(top),bonuses};
+}
+function v16EnsureBonuses(top){
+  const sig=v16TopSignature(top);
+  if(v16BonusState.signature!==sig || v16BonusState.bonuses.length!==top.length)v16DrawAllBonuses(top);
+}
+function v16RerollOne(i){
+  const top=selectedTopPeople();v16EnsureBonuses(top);
+  const current=v16BonusState.bonuses[i];if(!current)return;
+  const others=v16BonusState.bonuses.filter((_,j)=>j!==i).map(x=>x.value);
+  current.value=v16DrawLucky(current.catKey,others);
+  generateResult();
+}
+function v16RerollAll(){
+  const top=selectedTopPeople();v16DrawAllBonuses(top);generateResult();
+}
+function v16RenderLuckyPanel(top){
+  const panel=document.getElementById('v16LuckyPanel');if(!panel)return;
+  if(!top.length){panel.innerHTML='<div class="note">TOP3を選ぶと、ここにラッキー○○が出ます。</div>';return}
+  v16EnsureBonuses(top);
+  panel.innerHTML=`<div class="v16LuckyHead"><b>🎲 TOP3 ラッキー○○</b><button type="button" class="secondary v16LuckyAll" id="v16RerollAll">まとめて引き直す</button></div>
+    <div class="v16LuckyRows">${top.map((p,i)=>{
+      const b=v16BonusState.bonuses[i];
+      return `<div class="v16LuckyRow"><div class="v16LuckyMedal">${['🥇','🥈','🥉'][i]}</div><div><div class="v16LuckyName">${escapeHtml(displayName(p))}</div><div class="v16LuckyValue">${b.label}：${escapeHtml(b.value.text)}</div></div><button type="button" class="v16LuckyReroll" data-v16-reroll="${i}">🎲 この人だけ</button></div>`;
+    }).join('')}</div>`;
+  document.getElementById('v16RerollAll').onclick=v16RerollAll;
+  panel.querySelectorAll('[data-v16-reroll]').forEach(b=>b.onclick=()=>v16RerollOne(+b.dataset.v16Reroll));
+}
+
+generateResult=function(){
+  const valid=state.people.filter(p=>p.name);
+  const top=selectedTopPeople();
+  const topSet=new Set(top);
+  const rest=valid.filter(p=>!topSet.has(p));
+  v16EnsureBonuses(top);
+  let lines=['🎮✨ HP回復リザルト ✨🐰','','૮₍ ˶ᵔ ᗜ ᵔ˶ ₎აっ🎁','ﾋﾟﾛﾘﾝｯ♪　HP＋＋＋！','','━━━━ 🏆 TOP3 ━━━━',''];
+  ['🥇','🥈','🥉'].forEach((med,i)=>{
+    if(top[i]){
+      const b=v16BonusState.bonuses[i];
+      lines.push(`${med} ${displayName(top[i])}`,`${b.label}：${b.value.text}`,'');
+    }
+  });
+  lines.push('━━ 🎁 ギフト届け隊 ━━','');
+  rest.forEach(p=>lines.push(`🎁 ${displayName(p)}`));
+  if(rest.length)lines.push('');
+  lines.push('🎁⊂૮₍ ˶ᵔ ᗜ ᵔ˶ ₎ა⊃🎁','ぜ〜んぶ受け取ったｯｯｯ！','');
+  const nr=valid.filter(p=>p.newRank);
+  if(nr.length){
+    lines.push('━━ 🌱 NEW RANK ━━━','');
+    nr.forEach(p=>lines.push(`✨ ${displayName(p)}　Rank.${p.newRank} GET！`,`🐰 なかまになった！`,''));
+    lines.push('仲間になってくれてありがと〜ｯ！🙌','');
+  }
+  lines.push('━━ 📟 今日のしゅり ━━','',`${statusPool[0][0]}　${statusPool[0][1]}`,`${statusPool[1][0]} ${statusPool[1][1]}`,`${statusPool[2][0]} ${statusPool[2][1]}`,'','　＼ ✨ QUEST CLEAR！✨ ／','','今日もしゅりのHP','いっぱい回復した〜〜ｯ！','','ギフトも応援も','ぜんぶ受け取りました🎁✨','','૮₍ ˶ᵔ ᗜ ᵔ˶ ₎აﾉ♪','また遊びにきてね〜ｯ！');
+  document.getElementById('result').value=lines.join('\n');
+  v16RenderLuckyPanel(top);
+};
+
+document.getElementById('regenBtn').onclick=v16RerollAll;
+
+// 初期移行
+v16LoadPeopleDict();
+renderDict();
+renderPeople();
+generateResult();
 
 </script>
 </body>
