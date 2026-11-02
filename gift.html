@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>ありがとうメッセージメーカー v16 名前辞書整理＋ラッキー100</title>
+<title>ありがとうメッセージメーカー v17 OCR安全照合＋ラッキー100</title>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
 :root{
@@ -282,11 +282,16 @@ input,select,textarea{padding:7px 8px;font-size:13px;border-radius:9px}
     <a class="active" href="index.html">🎁 ありがとう</a>
     <a class="other" href="supporter.html">🌷 サポーター</a>
   </nav>
-  <h1>🐰 ありがとうメッセージメーカー v16</h1>
+  <h1>🐰 ありがとうメッセージメーカー v17</h1>
   <p class="lead">名前辞書を「1人＝1まとまり」に整理。OCRの崩れはその人の別名として学習。TOP3のラッキー○○は最近の重複を避けて抽選＆個別シャッフルできます。</p>
 
   <section class="card">
     <h2>① スクショを入れる</h2>
+    <div style="padding:12px;border:1px solid #efd7c7;border-radius:12px;background:#fffaf5;margin-bottom:12px">
+      <label for="giftStreamDate">📅 このギフトの配信日</label>
+      <input type="date" id="giftStreamDate" style="margin-top:6px">
+      <div id="giftTargetMonth" style="margin-top:8px;font-weight:800;color:#3c9568" aria-live="polite"></div>
+    </div>
     <div class="drop">
       <input id="file" type="file" accept="image/*" multiple>
       <div class="note">縦長スクショは複数枚OK。重複人物は自動でまとめます。</div>
@@ -921,9 +926,47 @@ function duplicateCandidateFor(p, index){
   return best;
 }
 function monthKeyNow(){
-  const d=new Date();
-  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+  const date=document.getElementById('giftStreamDate')?.value;
+  return /^\d{4}-\d{2}-\d{2}$/.test(date||'') ? date.slice(0,7) : localTodayDate().slice(0,7);
 }
+function localTodayDate(){
+  const d=new Date();
+  return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+}
+function updateGiftDateLabel(){
+  const mk=monthKeyNow();
+  document.getElementById('giftTargetMonth').textContent=`🌷 サポーター登録先：${mk.slice(0,4)}年${Number(mk.slice(5))}月`;
+}
+function migrateGiftRosterMonth(previousMonth){
+  const key='shuri_supporter_roster_v4';
+  let all={};try{all=JSON.parse(localStorage.getItem(key)||'{}')||{}}catch(e){}
+  const target=monthKeyNow();
+  if(previousMonth===target)return;
+  const old=Array.isArray(all[previousMonth])?all[previousMonth]:[];
+  const moving=state.people.filter(p=>p.newRank);
+  // Only migrate records owned by this gift session; never remove manually maintained records.
+  for(const p of moving){
+    const official=v14NormalizeName(p.ocrName||p.name||'');
+    const nick=displayName(p);
+    const idx=old.findIndex(x=>x.source==='thanks' && ((official&&v14NormalizeName(x.official||x.name||x.nick||'')===official)||(nick&&String(x.name||x.nick||'')===nick)));
+    if(idx>=0)old.splice(idx,1);
+  }
+  all[previousMonth]=old;
+  localStorage.setItem(key,JSON.stringify(all));
+  moving.forEach(syncSupporterRoster);
+}
+const giftStreamDateInput=document.getElementById('giftStreamDate');
+giftStreamDateInput.value=localTodayDate();
+updateGiftDateLabel();
+giftStreamDateInput.addEventListener('change',()=>{
+  const old=giftStreamDateInput.dataset.previousMonth||localTodayDate().slice(0,7);
+  if(!giftStreamDateInput.value)giftStreamDateInput.value=localTodayDate();
+  updateGiftDateLabel();
+  migrateGiftRosterMonth(old);
+  giftStreamDateInput.dataset.previousMonth=monthKeyNow();
+  generateResult();
+});
+giftStreamDateInput.dataset.previousMonth=monthKeyNow();
 function syncSupporterRoster(p){
   const key='shuri_supporter_roster_v4';
   let all={};
@@ -960,7 +1003,7 @@ function generateResult(){
   const top=selectedTopPeople();
   const topSet=new Set(top);
   const rest=valid.filter(p=>!topSet.has(p));
-  let lines=['🎮✨ HP回復リザルト ✨🐰','','૮₍ ˶ᵔ ᗜ ᵔ˶ ₎აっ🎁','ﾋﾟﾛﾘﾝｯ♪　HP＋＋＋！','','━━━━ 🏆 TOP3 ━━━━',''];
+  let lines=['🎮✨ HP回復リザルト ✨🐰',`📅 ${document.getElementById('giftStreamDate').value.replaceAll('-','.')} 配信分`,'','૮₍ ˶ᵔ ᗜ ᵔ˶ ₎აっ🎁','ﾋﾟﾛﾘﾝｯ♪　HP＋＋＋！','','━━━━ 🏆 TOP3 ━━━━',''];
   ['🥇','🥈','🥉'].forEach((med,i)=>{
     if(top[i]){
       const b=bonuses[(i+valid.length)%bonuses.length];
@@ -1630,7 +1673,7 @@ generateResult=function(){
   const topSet=new Set(top);
   const rest=valid.filter(p=>!topSet.has(p));
   v16EnsureBonuses(top);
-  let lines=['🎮✨ HP回復リザルト ✨🐰','','૮₍ ˶ᵔ ᗜ ᵔ˶ ₎აっ🎁','ﾋﾟﾛﾘﾝｯ♪　HP＋＋＋！','','━━━━ 🏆 TOP3 ━━━━',''];
+  let lines=['🎮✨ HP回復リザルト ✨🐰',`📅 ${document.getElementById('giftStreamDate').value.replaceAll('-','.')} 配信分`,'','૮₍ ˶ᵔ ᗜ ᵔ˶ ₎აっ🎁','ﾋﾟﾛﾘﾝｯ♪　HP＋＋＋！','','━━━━ 🏆 TOP3 ━━━━',''];
   ['🥇','🥈','🥉'].forEach((med,i)=>{
     if(top[i]){
       const b=v16BonusState.bonuses[i];
@@ -1656,6 +1699,100 @@ document.getElementById('regenBtn').onclick=v16RerollAll;
 
 // 初期移行
 v16LoadPeopleDict();
+
+// v17: OCR候補の誤爆防止。衝突する別名は候補としてのみ扱う。
+function v17AliasOwners(raw){
+ const n=v16N(raw).toLocaleLowerCase('ja');
+ return v16PeopleDict.filter(p=>[p.displayName,...(p.aliases||[])].some(a=>v16N(a).toLocaleLowerCase('ja')===n));
+}
+function v17SuspiciousAlias(raw){
+ const n=v16N(raw);
+ if(!n||v16RiskAlias(n))return true;
+ if(n.length>40)return true;
+ const symbols=(n.match(/[A-Za-z0-9@#%&+=|\\\[\]{}]/g)||[]).length;
+ return n.length>5 && symbols/n.length>.65;
+}
+const v17OriginalFind=v16FindByAlias;
+v16FindByAlias=function(raw){
+ const owners=v17AliasOwners(raw);
+ return owners.length===1&&!v17SuspiciousAlias(raw)?owners[0]:null;
+};
+// 名前候補は全員の最高一致だけを比較し、同点や僅差を自動確定しない。
+v15NameSuggestions=function(name,limit=3){
+ const n=v16N(name);if(!n)return[];
+ return v16PeopleDict.map(p=>{
+  let best=0,bestAlias='',support=0;
+  for(const a of [p.displayName,...(p.aliases||[])]){
+   if(v17SuspiciousAlias(a)&&a!==p.displayName)continue;
+   const score=similarity(a,n);
+   if(score>=.65)support++;
+   if(score>best){best=score;bestAlias=a;}
+  }
+  return {official:bestAlias,nick:p.displayName,score:best,support};
+ }).filter(x=>x.score>=.55).sort((a,b)=>b.score-a.score||b.support-a.support).slice(0,limit);
+};
+v154AutoAlias=function(name){
+ const n=v16N(name);if(!n)return null;
+ const owners=v17AliasOwners(n);
+ if(owners.length>1)return {official:n,nick:'',score:1,auto:false,ambiguous:true};
+ const exact=v16FindByAlias(n);
+ if(exact)return {official:n,nick:exact.displayName,score:1,support:99,exact:true,auto:true};
+ const hits=v15NameSuggestions(n,5);if(!hits.length)return null;
+ const best=hits[0],second=hits[1]?.score??0,margin=best.score-second;
+ const auto=!v17SuspiciousAlias(n)&&best.score>=.90&&margin>=.15&&n.length>=4;
+ return {...best,exact:false,auto,margin};
+};
+v154RememberAutoAlias=function(raw,nick,score){
+ const a=v16N(raw);
+ if(v17SuspiciousAlias(a)||v17AliasOwners(a).length||Number(score)<.90)return false;
+ v16RememberAlias(a,nick);return true;
+};
+// 別名を追加するときは別人との衝突を警告し、既存データを上書きしない。
+const v17OriginalRemember=v16RememberAlias;
+v16RememberAlias=function(raw,displayName){
+ const alias=v16N(raw),target=v16N(displayName);
+ const owners=v17AliasOwners(alias).filter(p=>p.displayName!==target);
+ if(owners.length){setStatus(`⚠️「${alias}」は ${owners.map(p=>p.displayName).join('・')} にも登録されています。自動判定せず確認してください。`);return null;}
+ return v17OriginalRemember(raw,displayName);
+};
+// 別名の重複はローカル辞書にも曖昧なキーとして流し込まない。
+v16SyncNickMap=function(){
+ const map={},counts=new Map();
+ for(const p of v16PeopleDict)for(const a of [p.displayName,...(p.aliases||[])]){
+  const key=v16N(a);if(key)counts.set(key,(counts.get(key)||new Set()).add(p.displayName));
+ }
+ for(const p of v16PeopleDict)for(const a of [p.displayName,...(p.aliases||[])]){
+  const key=v16N(a);if(key&&counts.get(key).size===1&&!v17SuspiciousAlias(key))map[key]=p.displayName;
+ }
+ state.nick=map;localStorage.setItem('shuri_v13_nick',JSON.stringify(map));
+};
+// 読み取りの2方式を辞書照合して選ぶ。候補が曖昧なら従来のOCR結果を維持する。
+ocrCanvas=async function(c,psm=7,kind='generic'){
+ const candidates=[];
+ for(const mode of ['normal','gray']){
+  const pc=prepCanvas(c,mode);
+  const {data}=await Tesseract.recognize(pc,'jpn+eng',{
+   logger:m=>{if(m.status==='recognizing text')setProgress(15+Math.round(m.progress*70));},
+   tessedit_pageseg_mode:String(psm),preserve_interword_spaces:'1'
+  });
+  const t=kind==='name'?cleanName(data.text):norm(data.text);
+  if(t)candidates.push({text:t,confidence:Number(data.confidence||0)});
+ }
+ if(!candidates.length)return '';
+ if(kind!=='name')return candidates.sort((a,b)=>b.confidence-a.confidence)[0].text;
+ for(const c of candidates){
+  const owners=v17AliasOwners(c.text);
+  const suggestions=v15NameSuggestions(c.text,2);
+  const safeExact=owners.length===1&&!v17SuspiciousAlias(c.text);
+  const confident=suggestions[0]?.score>=.90&&(suggestions[0].score-(suggestions[1]?.score||0))>=.15;
+  c.score=(safeExact?100:0)+(confident?25:0)+Math.max(0,c.confidence)/10;
+  if(/コイン|Rank|送信先|ギフトコイン/.test(c.text))c.score-=40;
+ }
+ return candidates.sort((a,b)=>b.score-a.score)[0].text;
+};
+// 元データは別途JSONで配布。既存ブラウザの辞書はユーザーが明示的にインポートする。
+v16SyncNickMap();v16PersistPeople();renderDict();
+
 renderDict();
 renderPeople();
 generateResult();
