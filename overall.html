@@ -290,7 +290,7 @@
   }
 
 
-  /* v5.3 すっきりタグUI + しゅり感増量 */
+  /* v5.4 すっきりタグUI + しゅり感増量 + SUZURI */
   .primaryBox{
     background:transparent;
     border:0;
@@ -641,6 +641,9 @@
           </div>
           <div class="section">
             <div class="label">YouTube</div><input id="youtubeUrl" value="https://www.youtube.com/@syu10ri6">
+          </div>
+          <div class="section">
+            <div class="label">SUZURI</div><input id="suzuriUrl" value="https://suzuri.jp/syu_ohuzake">
           </div>
           <div class="section">
             <div class="label">公式ホームページ</div><input id="officialUrl" value="https://shuriririririri-official.syurix6-da.chatgpt.site">
@@ -1512,6 +1515,7 @@ function buildFull(){
   const x=document.getElementById("xUrl").value.trim();
   const tt=document.getElementById("tiktokUrl").value.trim();
   const yt=document.getElementById("youtubeUrl").value.trim();
+  const suzuri=document.getElementById("suzuriUrl").value.trim();
   const official=document.getElementById("officialUrl").value.trim();
 
   return `${hook}
@@ -1536,6 +1540,9 @@ ${tt}
 
 📺 MOVIE｜YouTube
 ${yt}
+
+🛍️ GOODS｜SUZURI
+${suzuri}
 
 🌐 OFFICIAL｜公式ホームページ
 ${official}
@@ -1581,7 +1588,7 @@ function saveDraft(){
   const data={
     date:dateInput.value, hook:hookInput.value, status:statusInput.value, thanks:thanksInput.value,
     drop:dropInput.value, ending:endingInput.value, daily:dailyMessage.value,
-    x:xUrl.value,tiktok:tiktokUrl.value,youtube:youtubeUrl.value,official:officialUrl.value,
+    x:xUrl.value,tiktok:tiktokUrl.value,youtube:youtubeUrl.value,suzuri:suzuriUrl.value,official:officialUrl.value,
     preview:fullPreview.value
   };
   localStorage.setItem("shuriri_thanks_draft",JSON.stringify(data));
@@ -1600,6 +1607,7 @@ function loadDraft(){
     xUrl.value=d.x||xUrl.value;
     tiktokUrl.value=d.tiktok||tiktokUrl.value;
     youtubeUrl.value=d.youtube||youtubeUrl.value;
+    suzuriUrl.value=d.suzuri||"https://suzuri.jp/syu_ohuzake";
     officialUrl.value=(d.official&&d.official!=="https://shuriririririri-official.jpr6rp5b5v.chatgpt.site")?d.official:"https://shuriririririri-official.syurix6-da.chatgpt.site";
     fullPreview.value=(d.preview||"").replaceAll("https://shuriririririri-official.jpr6rp5b5v.chatgpt.site","https://shuriririririri-official.syurix6-da.chatgpt.site");
     return true;
@@ -1660,7 +1668,7 @@ document.getElementById("copyAll").onclick=async()=>{
 };
 document.getElementById("clearHistory").onclick=()=>{localStorage.removeItem("shuriri_thanks_history");renderHistory()};
 
-["dateInput","hookInput","statusInput","thanksInput","dropInput","endingInput","dailyMessage","xUrl","tiktokUrl","youtubeUrl","officialUrl","fullPreview"]
+["dateInput","hookInput","statusInput","thanksInput","dropInput","endingInput","dailyMessage","xUrl","tiktokUrl","youtubeUrl","suzuriUrl","officialUrl","fullPreview"]
 .forEach(id=>{
   document.getElementById(id).addEventListener("input",()=>{
     if(id==="fullPreview") saveDraft();
